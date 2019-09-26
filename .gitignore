@@ -33,3 +33,6 @@
 
 # Build Files
 */build/*
+
+# Vim plugin YouCompleteMe requires this file
+compile_commands.json
