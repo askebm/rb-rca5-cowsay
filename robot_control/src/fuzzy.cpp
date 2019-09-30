@@ -5,7 +5,7 @@
 
 #include "fuzzy.h"
 
-int main(int argc, char* argv[])
+int fuzzy(int argc, char* argv[])
 {
 
     std::ofstream xFile;

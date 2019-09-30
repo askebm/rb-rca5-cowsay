@@ -85,6 +85,8 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
                         200.5f - range_min * px_per_m * std::sin(angle));
     cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
                       200.5f - range * px_per_m * std::sin(angle));
+
+    // The line we use to detect collisions
     cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
              cv::LINE_AA, 4);
 
