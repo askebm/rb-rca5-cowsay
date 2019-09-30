@@ -8,18 +8,6 @@
 int fuzzy(int argc, char* argv[])
 {
 
-    std::ofstream xFile;
-    std::ofstream yFile;
-    std::ofstream zFile;
-
-    xFile.open ("xFile.mat");
-    yFile.open ("yFile.mat");
-    zFile.open ("zFile.mat");
-
-    xFile << "[";
-    yFile << "[";
-    zFile << "[";
-
     fl::Engine* engine = fl::FllImporter().fromFile("ObstacleAvoidance.fll");
 
     std::string status;
@@ -47,20 +35,8 @@ int fuzzy(int argc, char* argv[])
             engine->process();
             FL_LOG(" | obstacle.input 1 = " << fl::Op::str(location) << " | obstacle.input 2 = " << fl::Op::str(distance->getValue()) << " => " << "steer.output = " << fl::Op::str(steer->getValue()));
 
-            xFile << fl::Op::str(location) << ",";
-            yFile << fl::Op::str(distance->getValue()) << ",";
-            zFile << fl::Op::str(steer->getValue()) << ",";
 
         }
 
     }
-
-    xFile << "]";
-    yFile << "]";
-    zFile << "]";
-
-    xFile.close();
-    yFile.close();
-    zFile.close();
-
 }
