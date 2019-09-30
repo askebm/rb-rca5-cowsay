@@ -33,6 +33,11 @@
 
 # Build Files
 */build/*
+*/build-*
+
+# QtCreater
+*.pro.user
+
 
 # Vim plugin YouCompleteMe requires this file
 compile_commands.json
