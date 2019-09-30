@@ -36,7 +36,10 @@
 */build-*
 
 # QtCreater
-*.pro.user
+*.user
+
+# Clion
+*/cmake-build-debug
 
 
 # Vim plugin YouCompleteMe requires this file
