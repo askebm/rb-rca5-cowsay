@@ -8,14 +8,16 @@
 
 static boost::mutex mutex;
 
-void statCallback(ConstWorldStatisticsPtr &_msg) {
+void statCallback(ConstWorldStatisticsPtr &_msg)
+{
   (void)_msg;
   // Dump the message contents to stdout.
   //  std::cout << _msg->DebugString();
   //  std::cout << std::flush;
 }
 
-void poseCallback(ConstPosesStampedPtr &_msg) {
+void poseCallback(ConstPosesStampedPtr &_msg)
+{
   // Dump the message contents to stdout.
   //  std::cout << _msg->DebugString();
 
@@ -34,7 +36,8 @@ void poseCallback(ConstPosesStampedPtr &_msg) {
   }
 }
 
-void cameraCallback(ConstImageStampedPtr &msg) {
+void cameraCallback(ConstImageStampedPtr &msg)
+{
 
   std::size_t width = msg->image().width();
   std::size_t height = msg->image().height();
@@ -49,7 +52,8 @@ void cameraCallback(ConstImageStampedPtr &msg) {
   mutex.unlock();
 }
 
-void lidarCallback(ConstLaserScanStampedPtr &msg) {
+void lidarCallback(ConstLaserScanStampedPtr &msg)
+{
 
   //  std::cout << ">> " << msg->DebugString() << std::endl;
   float angle_min = float(msg->scan().angle_min());
@@ -91,12 +95,16 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
               cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
               cv::Scalar(255, 0, 0));
 
+  // im - the current image from the camera
+
+
   mutex.lock();
   cv::imshow("lidar", im);
   mutex.unlock();
 }
 
-int main(int _argc, char **_argv) {
+int main(int _argc, char **_argv)
+{
   // Load gazebo
   gazebo::client::setup(_argc, _argv);
 
