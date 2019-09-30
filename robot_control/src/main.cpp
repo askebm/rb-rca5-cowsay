@@ -1,10 +1,10 @@
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
-
 #include <opencv2/opencv.hpp>
-
 #include <iostream>
+
+#include "fuzzy.h"
 
 static boost::mutex mutex;
 
@@ -75,6 +75,10 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
   int height = 400;
   float px_per_m = 200 / range_max;
 
+  // Variables for fuzzy controller
+  float shortest_distance = range_max;
+  float angle_to_shortest = 0.00;
+
   cv::Mat im(height, width, CV_8UC3);
   im.setTo(0);
   for (int i = 0; i < nranges; i++) {
@@ -86,7 +90,19 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
     cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
                       200.5f - range * px_per_m * std::sin(angle));
 
-    // ! anlge + range --> fuzzy.cpp
+
+    // Sensorline length
+    int lineLength = sqrt( (endpt.x-startpt.x)*(endpt.x-startpt.x) + (endpt.y-startpt.y)*(endpt.y-startpt.y) );
+
+    // Constant for when to react to surface
+    int detectLimit = 200;
+
+    // Check if shortest distance
+    if( shortest_distance > lineLength && lineLength < detectLimit )
+    {
+        shortest_distance = lineLength;
+        angle_to_shortest = angle;
+    }
 
     // The line we use to detect collisions
     cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
@@ -94,7 +110,16 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
 
     //    std::cout << angle << " " << range << " " << intensity << std::endl;
   }
-  cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
+
+    // Angle to the collision closest to the robot has been found, together with the angle. These are passed onto the fuzzy controller.
+    std::vector<float> fuzz_inputs;
+    fuzz_inputs.push_back(angle_to_shortest);
+    fuzz_inputs.push_back(shortest_distance);
+    fuzzy(fuzz_inputs);
+
+
+
+    cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
   cv::putText(im, std::to_string(sec) + ":" + std::to_string(nsec),
               cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
               cv::Scalar(255, 0, 0));
@@ -150,17 +175,22 @@ int main(int _argc, char **_argv)
   float speed = 0.0;
   float dir = 0.0;
 
-  // Loop
-  while (true) {
+  int key;
+
+    // Loop
+  while (true)
+  {
+    // Sleep
     gazebo::common::Time::MSleep(10);
 
-    mutex.lock();
-    int key = cv::waitKey(1);
-    mutex.unlock();
+/*    mutex.lock();
+    key = cv::waitKey(1);
+    mutex.unlock();*/
+
+
 
     if (key == key_esc)
       break;
-
     if ((key == key_up) && (speed <= 1.2f))
       speed += 0.05;
     else if ((key == key_down) && (speed >= -1.2f))
