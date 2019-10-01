@@ -4,62 +4,29 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <fl/Headers.h>
+
 #include <iostream>
 
 static boost::mutex mutex;
 
-void statCallback(ConstWorldStatisticsPtr &_msg) {
-  (void)_msg;
-  // Dump the message contents to stdout.
-  //  std::cout << _msg->DebugString();
-  //  std::cout << std::flush;
-}
+static boost::mutex _lidar_mutex;
+static double obstacle;
+static double distance;
+static float* _range_max;
+static void (*lidarCallback)(ConstLaserScanStampedPtr&);
 
-void poseCallback(ConstPosesStampedPtr &_msg) {
-  // Dump the message contents to stdout.
-  //  std::cout << _msg->DebugString();
-
-  for (int i = 0; i < _msg->pose_size(); i++) {
-    if (_msg->pose(i).name() == "pioneer2dx") {
-
-/*
-      std::cout << std::setprecision(2) << std::fixed << std::setw(6)
-                << _msg->pose(i).position().x() << std::setw(6)
-                << _msg->pose(i).position().y() << std::setw(6)
-                << _msg->pose(i).position().z() << std::setw(6)
-                << _msg->pose(i).orientation().w() << std::setw(6)
-                << _msg->pose(i).orientation().x() << std::setw(6)
-                << _msg->pose(i).orientation().y() << std::setw(6)
-                << _msg->pose(i).orientation().z() << std::endl;
-								*/
-    }
-  }
-}
-
-void cameraCallback(ConstImageStampedPtr &msg) {
-
-  std::size_t width = msg->image().width();
-  std::size_t height = msg->image().height();
-  const char *data = msg->image().data().c_str();
-  cv::Mat im(int(height), int(width), CV_8UC3, const_cast<char *>(data));
-
-  //im = im.clone();
-  cv::cvtColor(im, im, cv::COLOR_RGB2BGR);
-
-  mutex.lock();
-  cv::imshow("camera", im);
-  mutex.unlock();
-}
-
-void lidarCallback(ConstLaserScanStampedPtr &msg) {
-
+void lidarCallbackTransform (ConstLaserScanStampedPtr &msg)
+{
   //  std::cout << ">> " << msg->DebugString() << std::endl;
   float angle_min = float(msg->scan().angle_min());
+  float angle_max = float(msg->scan().angle_max());
   //  double angle_max = msg->scan().angle_max();
   float angle_increment = float(msg->scan().angle_step());
 
   float range_min = float(msg->scan().range_min());
-  float range_max = float(msg->scan().range_max());
+  //float range_max = float(msg->scan().range_max());
+	float range_max = 2.0;
 
   int sec = msg->time().sec();
   int nsec = msg->time().nsec();
@@ -67,35 +34,39 @@ void lidarCallback(ConstLaserScanStampedPtr &msg) {
   int nranges = msg->scan().ranges_size();
   int nintensities = msg->scan().intensities_size();
 
-  assert(nranges == nintensities);
+	float cls_angle;
+	float cls_range = range_max;
 
-  int width = 400;
-  int height = 400;
-  float px_per_m = 200 / range_max;
-
-  cv::Mat im(height, width, CV_8UC3);
-  im.setTo(0);
   for (int i = 0; i < nranges; i++) {
     float angle = angle_min + i * angle_increment;
     float range = std::min(float(msg->scan().ranges(i)), range_max);
-    //    double intensity = msg->scan().intensities(i);
-    cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
-                        200.5f - range_min * px_per_m * std::sin(angle));
-    cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
-                      200.5f - range * px_per_m * std::sin(angle));
-    cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
-             cv::LINE_AA, 4);
+		if (range < cls_range) {
+			cls_range = range;
+			cls_angle = angle;
+		}
+	}
+	
+	// Normalise angle and range between 0 and 1
+	_lidar_mutex.lock();
+	obstacle =  1 - (double)(cls_angle - angle_min)/double(angle_max + cv::abs(angle_min));
+	distance = double(cls_range/range_max);
+	_lidar_mutex.unlock();
 
-    //    std::cout << angle << " " << range << " " << intensity << std::endl;
-  }
-  cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
-  cv::putText(im, std::to_string(sec) + ":" + std::to_string(nsec),
-              cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
-              cv::Scalar(255, 0, 0));
+}
 
-  mutex.lock();
-  cv::imshow("lidar", im);
-  mutex.unlock();
+void lidarCallbackInit(ConstLaserScanStampedPtr &msg)
+{
+	auto nranges = (msg->scan().ranges_size());
+	auto angle_min = (msg->scan().angle_min());
+	auto angle_step = (msg->scan().angle_step());
+
+	_range_max = new float[nranges];
+
+	for (int i = 0; i < nranges; ++i) {
+		auto angle = angle_min + i * angle_step;
+		_range_max[i] = std::min(0.15 / std::cos(angle), double(2));
+	}
+	lidarCallback = lidarCallbackTransform;
 }
 
 int main(int _argc, char **_argv) {
@@ -107,17 +78,8 @@ int main(int _argc, char **_argv) {
   node->Init();
 
   // Listen to Gazebo topics
-  gazebo::transport::SubscriberPtr statSubscriber =
-      node->Subscribe("~/world_stats", statCallback);
-
-  gazebo::transport::SubscriberPtr poseSubscriber =
-      node->Subscribe("~/pose/info", poseCallback);
-
-  gazebo::transport::SubscriberPtr cameraSubscriber =
-      node->Subscribe("~/pioneer2dx/camera/link/camera/image", cameraCallback);
-
   gazebo::transport::SubscriberPtr lidarSubscriber =
-      node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", lidarCallback);
+      node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", lidarCallbackTransform);
 
   // Publish to the robot vel_cmd topic
   gazebo::transport::PublisherPtr movementPublisher =
@@ -131,46 +93,35 @@ int main(int _argc, char **_argv) {
   worldPublisher->WaitForConnection();
   worldPublisher->Publish(controlMessage);
 
-  const int key_left = 81;
-  const int key_up = 82;
-  const int key_down = 84;
-  const int key_right = 83;
-  const int key_esc = 27;
-	const int key_space = 32;
+	// Setup fuzzy controller
+	fl::Engine* fl_engine = fl::FllImporter().fromFile("ObstacleAvoidance.fll");
+	std::string status;
+	if (not fl_engine->isReady(&status))
+			throw fl::Exception("[engine error] engine is not ready:n" + status, FL_AT);
+	fl::InputVariable* fl_obstacle = fl_engine->getInputVariable("obstacle");
+	fl::InputVariable* fl_distance = fl_engine->getInputVariable("distance");
+	fl::OutputVariable* fl_steer = fl_engine->getOutputVariable("mSteer");
+	fl::OutputVariable* fl_speed = fl_engine->getOutputVariable("velocity");
 
-  float speed = 0.0;
-  float dir = 0.0;
+  float speed = 0.5;
+  double dir = 0.0;
 
   // Loop
   while (true) {
     gazebo::common::Time::MSleep(10);
 
-    mutex.lock();
-    int key = cv::waitKey(1);
-    mutex.unlock();
-		std::cout << key << std::endl;
+		_lidar_mutex.lock();
+		std::cout << "Distance is: " << distance << std::endl;
+		fl_distance->setValue(distance);
+		std::cout << "Obstacle is: " << obstacle << std::endl;
+		fl_obstacle->setValue(obstacle);
+		_lidar_mutex.unlock();
 
-    if (key == key_esc)
-      break;
+		fl_engine->process();
 
-    if ((key == key_up) && (speed <= 1.2f))
-      speed += 0.05;
-    else if ((key == key_down) && (speed >= -1.2f))
-      speed -= 0.05;
-    else if ((key == key_right) && (dir <= 0.4f))
-      dir += 0.05;
-    else if ((key == key_left) && (dir >= -0.4f))
-      dir -= 0.05;
-		else if (key == key_space) {
-			speed = 0.0;
-			dir = 0.0;
-		}
-    else {
-      // slow down
-      //      speed *= 0.1;
-      //      dir *= 0.1;
-    }
-
+		speed = fl_speed->getValue();
+		dir = (double(fl_steer->getValue())-0.5)*10;
+		std::cout << "Dir is: " << dir << std::endl;
     // Generate a pose
     ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
 
