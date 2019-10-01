@@ -8,13 +8,14 @@
 
 #include <iostream>
 
+#define MAX_LIDAR_RANGE 2
+#define ROBOT_WIDTH 0.15
+
 static boost::mutex mutex;
 
 static boost::mutex _lidar_mutex;
 static double obstacle;
 static double distance;
-static float* _range_max;
-static void (*lidarCallback)(ConstLaserScanStampedPtr&);
 
 void lidarCallbackTransform (ConstLaserScanStampedPtr &msg)
 {
@@ -25,8 +26,7 @@ void lidarCallbackTransform (ConstLaserScanStampedPtr &msg)
   float angle_increment = float(msg->scan().angle_step());
 
   float range_min = float(msg->scan().range_min());
-  //float range_max = float(msg->scan().range_max());
-	float range_max = 2.0;
+  float range_max = float(msg->scan().range_max());
 
   int sec = msg->time().sec();
   int nsec = msg->time().nsec();
@@ -34,39 +34,32 @@ void lidarCallbackTransform (ConstLaserScanStampedPtr &msg)
   int nranges = msg->scan().ranges_size();
   int nintensities = msg->scan().intensities_size();
 
-	float cls_angle;
-	float cls_range = range_max;
+	float cls_range = MAX_LIDAR_RANGE;
+	double total_mass = 0;
+	double weighted_x = 0;
 
   for (int i = 0; i < nranges; i++) {
     float angle = angle_min + i * angle_increment;
     float range = std::min(float(msg->scan().ranges(i)), range_max);
-		if (range < cls_range) {
-			cls_range = range;
-			cls_angle = angle;
+		float y = std::abs(range * std::cos(angle));
+		float x = range * std::sin(angle);
+		if( (-ROBOT_WIDTH <= x) && (x <= ROBOT_WIDTH))
+		{
+			if (y<cls_range) {
+				cls_range = y;
+			}
+			auto y_i = MAX_LIDAR_RANGE - y;
+			total_mass +=y_i;
+			weighted_x +=y_i*x;
 		}
 	}
 	
 	// Normalise angle and range between 0 and 1
 	_lidar_mutex.lock();
-	obstacle =  1 - (double)(cls_angle - angle_min)/double(angle_max + cv::abs(angle_min));
-	distance = double(cls_range/range_max);
+	obstacle =  ((total_mass==0)?0.5:0.5-(4*weighted_x/total_mass));
+	distance = cls_range/MAX_LIDAR_RANGE;
 	_lidar_mutex.unlock();
 
-}
-
-void lidarCallbackInit(ConstLaserScanStampedPtr &msg)
-{
-	auto nranges = (msg->scan().ranges_size());
-	auto angle_min = (msg->scan().angle_min());
-	auto angle_step = (msg->scan().angle_step());
-
-	_range_max = new float[nranges];
-
-	for (int i = 0; i < nranges; ++i) {
-		auto angle = angle_min + i * angle_step;
-		_range_max[i] = std::min(0.15 / std::cos(angle), double(2));
-	}
-	lidarCallback = lidarCallbackTransform;
 }
 
 int main(int _argc, char **_argv) {
@@ -120,6 +113,7 @@ int main(int _argc, char **_argv) {
 		fl_engine->process();
 
 		speed = fl_speed->getValue();
+		std::cout << "Speed is: " << speed << std::endl;
 		dir = (double(fl_steer->getValue())-0.5)*10;
 		std::cout << "Dir is: " << dir << std::endl;
     // Generate a pose
