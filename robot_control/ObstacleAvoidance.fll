@@ -1,0 +1,46 @@
+#File: ObstacleAvoidance.fll
+Engine: ObstacleAvoidance
+InputVariable: distance
+  enabled: true
+  range: 0.000 6.000
+  lock-range: false
+  term: close Ramp 6.000 0.000
+  term: far Ramp 0.000 6.000
+InputVariable: angle
+  enabled: true
+  range: -2.000 2.000
+  lock-range: false
+  term: left Ramp -2.000 2.000
+  term: right Ramp 2.000 -2.000
+OutputVariable: out_angle
+  enabled: true
+  range: -2.000 2.000
+  lock-range: false
+  aggregation: Maximum
+  defuzzifier: Centroid 100
+  default: nan
+  lock-previous: false
+  term: left Ramp -2.000 2.000
+  term: right Ramp 2.000 -2.000
+OutputVariable: speed
+  enabled: true
+  range: 0.000 1.000
+  lock-range: false
+  aggregation: Maximum
+  defuzzifier: Centroid 100
+  default: nan
+  lock-previous: false
+  term: fast Ramp 0.000 1.000
+  term: slow Ramp 1.000 0.000
+RuleBlock: mamdani
+  enabled: true
+  conjunction: none
+  disjunction: none
+  implication: AlgebraicProduct
+  activation: General
+  rule: if distance is far then speed is fast
+  rule: if distance is close then speed is slow
+  rule: if angle is right then out_angle is left
+  rule: if angle is left then out_angle is right
+
+
