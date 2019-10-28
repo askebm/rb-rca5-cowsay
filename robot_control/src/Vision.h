@@ -2,15 +2,27 @@
 // Created by victor on 10/25/19.
 //
 
-#ifndef ROBOT_CONTROL_VISION_H
-#define ROBOT_CONTROL_VISION_H
-
+#pragma once
+#include <opencv2/opencv.hpp>
 
 
 class Vision {
 
+public:
+
+    Vision();
+    ~Vision();
+
+
+    cv::Mat findContour(cv::Mat& im);
+    bool    isAllBlack(cv::Mat& im);
+
+
+
+
+protected:
+
+
+
+
 };
-
-
-
-#endif //ROBOT_CONTROL_VISION_H

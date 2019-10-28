@@ -13,5 +13,10 @@ include_directories(${GAZEBO_PROTO_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
 
 find_library (FuzzyLiteLibrary fuzzylite)
 
-add_executable(robot_control src/main.cpp src/fuzzy.cpp)
+#However, the file(GLOB...) allows for wildcard additions:
+file(GLOB_RECURSE SOURCES "src/*.cpp")
+SET(CMAKE_CXX_FLAGS -pthread)
+
+add_executable(robot_control ${SOURCES})
+
 target_link_libraries(robot_control ${OpenCV_LIBS} ${GAZEBO_PROTO_LIBRARIES} ${GAZEBO_LIBRARIES} ${FuzzyLiteLibrary})
