@@ -20,6 +20,15 @@ cv::Mat Vision::cvt2Hls(cv::Mat& im)
     return im_hls; 
 }
 
+void Vision::takePhoto(cv::Mat& im)
+{
+    int key = cv::waitKey(1);
+    if(key == 32)
+    {
+        cv::imwrite( "../../Photos/marbles.jpg", im );
+    }
+}
+
 cv::Mat Vision::findContour(cv::Mat& im)
 {
 	// Define the needed iamges.
