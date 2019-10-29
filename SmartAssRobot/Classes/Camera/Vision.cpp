@@ -6,13 +6,9 @@
 #include <opencv2/opencv.hpp>
 #include "Vision.h"
 
-Vision::Vision()
-{
-}
+Vision::Vision(){}
 
-Vision::~Vision()
-{
-}
+Vision::~Vision(){}
 
 cv::Mat Vision::cvt2Hue(cv::Mat& im)
 {
