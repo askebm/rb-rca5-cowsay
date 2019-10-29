@@ -6,23 +6,40 @@
 #include <opencv2/opencv.hpp>
 #include "Vision.h"
 
+cv::Mat Vision::cvt2Hue(cv::Mat& im)
+{
+    cv::Mat im_hue;
+    cv::cvtColor(im,im_hue,CV_8UC1);
+    return im_hue;
+}
+
+cv::Mat Vision::cvt2Hls(cv::Mat& im)
+{
+    cv::Mat im_hls;
+    cv::cvtColor(im,im_hls,CV_BGR2HLS);
+    return im_hls; 
+}
+
 cv::Mat Vision::findContour(cv::Mat& im)
 {
-	
+	// Define the needed iamges.
 	cv::Mat im_hue;
 	cv::Mat im_hls;
 	cv::Mat im_bin;	
-
+    
+    // Make the im_hls.
 	cv::cvtColor(im,im_hls,CV_BGR2HLS);
-	
-	
-	return im;
+
+    // Make the im_hue.
+    cv::cvtColor(im_hls,im_hue,CV_8UC1);
+    
 
 
-
-
+	return im_hls;
 
 }
+
+
 
 
 bool isAllBlack(cv::Mat& im)

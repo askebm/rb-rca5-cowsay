@@ -22,6 +22,10 @@ class Vision {
 
 	cv::Mat findContour(cv::Mat& im);
 	bool 	isAllBlack(cv::Mat& im);
-    
+    cv::Mat cvt2Hue(cv::Mat& im);
+    cv::Mat cvt2Hls(cv::Mat& im);    
+
+
+
 };
 
