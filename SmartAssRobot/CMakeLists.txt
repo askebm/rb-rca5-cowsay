@@ -12,6 +12,8 @@ include_directories(${GAZEBO_PROTO_INCLUDE_DIRS} ${GAZEBO_INCLUDE_DIRS})
 
 set(LIBS ${OpenCV_LIBS} ${GAZEBO_PROTO_LIBRARIES} ${GAZEBO_LIBRARIES} )
 
+include_directories(./Classes)
+
 add_subdirectory(Classes)
 
 add_subdirectory(Mains)
