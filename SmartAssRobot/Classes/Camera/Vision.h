@@ -7,7 +7,7 @@
 #include <cmath>
 #include <time.h>
 #include <vector>
-#include <cv.hpp>
+//#include <cv.hpp>
 #include <opencv2/opencv.hpp>
 #include <opencv2/viz/types.hpp>
 #include <opencv2/imgproc.hpp>
