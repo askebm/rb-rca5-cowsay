@@ -1,5 +1,11 @@
 // Vision.h
 
+#ifndef VISION_H_28FXIT71
+#define VISION_H_28FXIT71
+
+
+
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
@@ -30,3 +36,4 @@ class Vision {
 
 };
 
+#endif /* end of include guard: VISION_H_28FXIT71 */
