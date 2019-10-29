@@ -6,7 +6,7 @@
 #include <gazebo/transport/transport.hh>
 
 #include <opencv2/opencv.hpp>
-#include "Vision.h"
+#include "../Classes/Camera/Vision.h"
 
 int main()
 {
