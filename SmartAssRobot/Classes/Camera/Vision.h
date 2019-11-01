@@ -3,9 +3,6 @@
 #ifndef VISION_H_28FXIT71
 #define VISION_H_28FXIT71
 
-
-
-
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <iostream>
@@ -25,14 +22,14 @@ class Vision {
 	
 	Vision();
 	~Vision();
+    
 
-	cv::Mat findContour(cv::Mat& im);
-	bool 	isAllBlack(cv::Mat& im);
-    cv::Mat cvt2Hls(cv::Mat& im);
-    void    takePhoto(cv::Mat& im,std::string name); 
-    cv::Mat cvt2Bin(cv::Mat& im);
+    std::pair<int,bool>         findContour(cv::Mat& im);
+	bool 	                    isAllBlack(cv::Mat& im);
+    cv::Mat                     cvt2Hls(cv::Mat& im);
+    void                        takePhoto(cv::Mat& im,std::string name);
 
-    bool isRed(cv::Point p, cv::Mat& im);   
+    bool                        isRed(cv::Point p, cv::Mat& im);
 
 
 

@@ -14,6 +14,8 @@
 
 static boost::mutex mutex;
 
+Vision visToolBox;
+
 void statCallback(ConstWorldStatisticsPtr &_msg) {
   (void)_msg;
   // Dump the message contents to stdout.
@@ -49,14 +51,9 @@ void cameraCallback(ConstImageStampedPtr &msg) {
 
   im = im.clone();
   cv::cvtColor(im, im, cv::COLOR_RGB2BGR);
-    
-/* Code used to 
 
-    Vision camera; 
-    std::cout << "Camera Callback Rolling!!!" << std::endl;
-    // Take photo of robot seight
-    camera.takePhoto(im);
-*/
+  // Find the marbles
+  std::pair<int,bool> im_center = visToolBox.findContour(im);
 
   mutex.lock();
   cv::imshow("camera", im);

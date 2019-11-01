@@ -29,7 +29,7 @@ int main()
 
     cv::imshow("Original image",picture);
     //cv::imshow("HLS image", vision.cvt2Hls(picture));
-    cv::imshow("Hough circle image",vision.findContour(picture));
+    //cv::imshow("Hough circle image",vision.findContour(picture));
     //cv::imshow("Binary image",vision.cvt2Bin(picture));
     cv::waitKey(0);
 
