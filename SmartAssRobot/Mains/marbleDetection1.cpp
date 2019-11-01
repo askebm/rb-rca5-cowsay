@@ -50,10 +50,13 @@ void cameraCallback(ConstImageStampedPtr &msg) {
   im = im.clone();
   cv::cvtColor(im, im, cv::COLOR_RGB2BGR);
     
-    Vision camera;
+/* Code used to 
 
+    Vision camera; 
+    std::cout << "Camera Callback Rolling!!!" << std::endl;
     // Take photo of robot seight
     camera.takePhoto(im);
+*/
 
   mutex.lock();
   cv::imshow("camera", im);

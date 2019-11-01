@@ -28,9 +28,11 @@ class Vision {
 
 	cv::Mat findContour(cv::Mat& im);
 	bool 	isAllBlack(cv::Mat& im);
-    cv::Mat cvt2Hue(cv::Mat& im);
     cv::Mat cvt2Hls(cv::Mat& im);
-    void    takePhoto(cv::Mat& im);    
+    void    takePhoto(cv::Mat& im,std::string name); 
+    cv::Mat cvt2Bin(cv::Mat& im);
+
+    bool isRed(cv::Point p, cv::Mat& im);   
 
 
 
