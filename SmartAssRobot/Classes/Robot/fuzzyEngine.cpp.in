@@ -1,0 +1,15 @@
+#ifndef FUZZYENGINE_CPP_IN_FWR0QY67
+#define FUZZYENGINE_CPP_IN_FWR0QY67
+
+#include <fl/Headers.h>
+
+
+fl::Engine* CreateEngine() {
+	
+@FUZZYENGINE@
+
+return engine;
+
+}
+
+#endif /* end of include guard: FUZZYENGINE_CPP_IN_FWR0QY67 */
