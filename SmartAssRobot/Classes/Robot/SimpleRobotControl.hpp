@@ -10,6 +10,7 @@
 #include <atomic>
 #include <thread>
 
+
 #include <fl/Headers.h>
 
 namespace rba{
@@ -44,7 +45,6 @@ protected:
 	} fuzzyVariables;
 	void cleanUp();
 public:
-	virtual void callback()=0;
 	void setEngineFromFile(const std::string file);
 	SimpleRobotControl();
 	~SimpleRobotControl();

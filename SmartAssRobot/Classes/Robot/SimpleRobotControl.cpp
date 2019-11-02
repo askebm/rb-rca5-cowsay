@@ -1,5 +1,5 @@
 #include "SimpleRobotControl.hpp"
-#include "fuzzyEngine.cpp"
+#include "fuzzyEngine.hpp"
 
 using namespace rba;
 

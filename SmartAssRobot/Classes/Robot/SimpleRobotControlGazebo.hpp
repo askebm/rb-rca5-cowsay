@@ -40,12 +40,11 @@ private:
 
 public:
 	SimpleRobotControlGazebo(const gazebo::transport::NodePtr _node,
-			const std::string engine,
 			const std::string& pioneerTopic="~/pioneer2dx/vel_cmd", 
 			const std::string& lidarTopic="~/pioneer2dx/hokuyo/link/laser/scan")
 		: node(_node)
 	{
-		setEngineFromFile(engine);
+		initEngine();
 		movementPublisher = node->Advertise<gazebo::msgs::Pose>(pioneerTopic);
 		lidarSubscriber = node->Subscribe(lidarTopic,&SimpleRobotControlGazebo::callback,this);
 		initProcess();
