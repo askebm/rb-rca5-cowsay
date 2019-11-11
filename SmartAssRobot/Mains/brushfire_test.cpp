@@ -4,10 +4,9 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
-#include "../Classes/Lidar/localization.h"
+#include "../Classes/Lidar/brushfireal.h"
 
 static boost::mutex mutex_l;
-
 static boost::mutex mutex_k;
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
@@ -52,7 +51,6 @@ void cameraCallback(ConstImageStampedPtr &msg) {
 }
 
 void lidarCallback(ConstLaserScanStampedPtr &msg) {
-
   //  std::cout << ">> " << msg->DebugString() << std::endl;
   float angle_min = float(msg->scan().angle_min());
   //  double angle_max = msg->scan().angle_max();
@@ -140,6 +138,8 @@ int main(int _argc, char **_argv) {
   float speed = 0.0;
   float dir = 0.0;
 
+  BrushfireAl a;
+
   // Loop
   while (true) {
     gazebo::common::Time::MSleep(10);
@@ -177,4 +177,3 @@ int main(int _argc, char **_argv) {
   // Make sure to shut everything down.
   gazebo::client::shutdown();
 }
-

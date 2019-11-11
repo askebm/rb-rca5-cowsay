@@ -1,8 +1,8 @@
-#include "path_planning.h"
+#include "localization.h"
 
-Path_planning::Path_planning(){}
+Localization::Localization(){}
 
-vector<vector<float>> Path_planning::lineExtraction(vector<float> p, vector<float> theta, int n )
+vector<vector<float>> Localization::lineExtraction(vector<float> p, vector<float> theta, int n )
 {
     double line_model = 0;
     vector<float> temp_p;
@@ -33,8 +33,10 @@ vector<vector<float>> Path_planning::lineExtraction(vector<float> p, vector<floa
             temp_p.pop_back();
             temp_theta.pop_back();
             i = i - 1;
-            temp_p.clear();
-            temp_theta.clear();
+            for(int  k = 0; k < no_o_points; k++)
+            {
+                cout <<"hej" << endl;
+            }
             no_o_points = 2;
             points.push_back(temp_p);
             points.push_back(temp_theta);
@@ -50,7 +52,7 @@ vector<vector<float>> Path_planning::lineExtraction(vector<float> p, vector<floa
     }
 }
 
-void Path_planning::rawData(float range, float angle, int counter)
+void Localization::rawData(float range, float angle, int counter)
 {
     // creates a tempt vectors for x and y that will be cleared after use
     vector<float> p;
@@ -68,7 +70,7 @@ void Path_planning::rawData(float range, float angle, int counter)
     p.clear();
     theta.clear();
 }
-void Path_planning::leastSquare(vector<float> p, vector<float> theta, int n)
+void Localization::leastSquare(vector<float> p, vector<float> theta, int n)
 {
     double x1 = 0, x2 = 0, y1 = 0, y2 =0; // to calculate atan2
 
@@ -111,5 +113,5 @@ void Path_planning::leastSquare(vector<float> p, vector<float> theta, int n)
     }
 }
 
-Path_planning::~Path_planning(){}
+Localization::~Localization(){}
 

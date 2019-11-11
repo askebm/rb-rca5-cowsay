@@ -1,5 +1,5 @@
-#ifndef PATH_PLANNING_H
-#define PATH_PLANNING_H
+#ifndef LOCALIZATION_H
+#define LOCALIZATION_H
 
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>
@@ -11,12 +11,12 @@
 
 using namespace std;
 
-class Path_planning
+class Localization
 {
 public:
-    Path_planning();
-    ~Path_planning();
-    void localization();
+    Localization();
+    ~Localization();
+    //void localization();
     vector<vector<float>> lineExtraction(vector<float> p, vector<float> tetha, int n ); // Incremental algorithm
     void leastSquare(vector<float> p, vector<float> tetha, int n );
     void rawData(float range, float angle, int counter);
@@ -29,4 +29,4 @@ private:
 
 };
 
-#endif // PATH_PLANNING_H
+#endif // LOCALIZATION_H
