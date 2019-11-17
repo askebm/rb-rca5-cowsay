@@ -14,10 +14,10 @@ BrushfireAl::BrushfireAl()
     convertToBinary(image); // converts the image to binary and scales up all images.
 
     start_x = binary_image.rows/2;
-    start.y = binary_image.cols/2;
-   // brushfire();
+    start_y = binary_image.cols/2;
+    brushfire();
 
-    findNodes();
+
     mutex_b.lock();
     cv::namedWindow("Image_o");
     cv::imshow("Image_o", binary_image);
@@ -26,16 +26,15 @@ BrushfireAl::BrushfireAl()
     cv::namedWindow("Image_colour");
     cv::imshow("Image_colour", colour_img);
     mutex_b.unlock();
-
 }
 
 void BrushfireAl::convertToBinary(Mat img)
 {
     mutex_b.lock();
-    threshold(img, binary_image, 127,255, THRESH_BINARY);
-    resize(binary_image, binary_image, Size(), 10, 10, INTER_CUBIC); // upscale 10x
+    resize(img, img, Size(), 10, 10, INTER_CUBIC); // upscale 10x
     resize(grey_scale, grey_scale, Size(), 10, 10, INTER_CUBIC); // upscale 10x
     resize(colour_img, colour_img, Size(), 10, 10, INTER_CUBIC); // upscale 10x
+    threshold(img, binary_image, 127,255, THRESH_BINARY);
     mutex_b.unlock();
 
 }
@@ -56,6 +55,13 @@ void BrushfireAl::brushfire()
     {
         for(int y = 0; y <= binary_image.rows; y++)
         {
+            if(binary_image.at<uchar>(Point(x,y)) == 0)
+            {
+                    grey_scale.at<uchar>(Point(x,y)) = 1;
+            }
+            else
+                grey_scale.at<uchar>(Point(x,y)) = 0;
+
             pixel_array.push_back(grey_scale.at<uchar>(Point(x,y)));
             counter++;
         }
@@ -146,25 +152,53 @@ void BrushfireAl::brushfire()
             counter1++;
         }
     }
-    addNodes();
+    addNodes(pixel_array);
 }
-void BrushfireAl::addNodes()
+void BrushfireAl::addNodes(vector<int> pixel_array)
 {
-    Vec3b colour = colour_img.at<Vec3b>(Point(100,100));
-    colour[0] = 0;
-    colour[1] = 0;
-    colour[2] = 255;
-    nodeVector();
-    mutex_b.lock();
-    colour_img =grey_scale.clone();
-    cvtColor(colour_img, colour_img, CV_GRAY2RGB);
-    mutex_b.unlock();
+    Vec3b colourPath = colour_img.at<Vec3b>(Point(100,100));
+    colourPath[0] = 0;
+    colourPath[1] = 0;
+    colourPath[2] = 200;
 
+    int counter = 0;
+    for(int x = 0; x <= binary_image.cols; x++)
+    {
+        for(int y = 0; y <= binary_image.rows; y++)
+        {
+            if(pixel_array[counter] == 1)
+            {
+                colourPath[0] = 0;
+                colourPath[1] = 0;
+                colourPath[2] = 0;
+                colour_img.at<Vec3b>(Point(x,y)) = colourPath;
+            }
+            else if(pixel_array[counter] > 80)
+            {
+                colourPath[0] = 255;
+                colourPath[1] = 0;
+                colourPath[2] = 255;
+                colour_img.at<Vec3b>(Point(x,y)) = colourPath;
+            }
+            else
+            {
+                colourPath[0] = 255;
+                colourPath[1] = 255;
+                colourPath[2] = 255;
+                colour_img.at<Vec3b>(Point(x,y)) = colourPath;
+            }
+            counter++;
+        }
+    }
+    nodeVector();
+    Vec3b colourPoint = colour_img.at<Vec3b>(Point(100,100));
+    colourPoint[0] = 0;
+    colourPoint[1] = 0;
+    colourPoint[2] = 255;
     for(int i = 0; i < important_nodes.size(); i++)
     {
-        colour_img.at<Vec3b>(Point(important_nodes[i].x, important_nodes[i].y)) = colour;
+        colour_img.at<Vec3b>(Point(important_nodes[i].x, important_nodes[i].y)) = colourPoint;
     }
-
 }
 void BrushfireAl::nodeVector()
 {

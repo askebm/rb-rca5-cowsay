@@ -29,10 +29,12 @@ private:
     void convertToBinary(Mat img);
     Mat grey_scale;
     void findNodes(); //just a debugging algo
-    void addNodes();
+    void addNodes(vector<int> x);
     void nodeVector(); //support algo.
     Mat colour_img;
     vector<Point1> important_nodes = {};
+    int start_x;
+    int start_y;
 public:
     BrushfireAl();
     void brushfire();
