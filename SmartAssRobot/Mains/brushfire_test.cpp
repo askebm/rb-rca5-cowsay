@@ -165,7 +165,7 @@ int main(int _argc, char **_argv) {
       //      dir *= 0.1;
     }
 
-    // Generate a pose
+    //Generate a pose
     ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
 
     // Convert to a pose message
