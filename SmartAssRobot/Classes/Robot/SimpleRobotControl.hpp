@@ -1,14 +1,17 @@
 #ifndef SIMPLEROBOTCONTROL_H
 #define SIMPLEROBOTCONTROL_H
 
+#include <fl/rule/RuleBlock.h>
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 
+#include <initializer_list>
 #include <string>
 #include <mutex>
 #include <atomic>
 #include <thread>
+#include <cmath>
 
 
 #include <fl/Headers.h>
@@ -26,10 +29,22 @@ protected:
 	std::atomic_bool isRunning{true};
 	void initEngine();
 
+	struct point {double x,y;};
+	struct position {
+		struct point p;
+		double yaw;
+		std::mutex mutex;
+	};
+	struct position currentPosition={{0,0},0};
+	struct point goal={0,0};
+
+
+	void setGoal(double x,double y, double z=1);
+
 	struct lidarData {
 		float angle_min, angle_max, angle_increment, range_min, range_max;
-		int sec, nsec, nranges, nintensities;
-		float** ranges;
+		int sec, nsec, nranges = 0, nintensities = 0;
+		float* ranges = nullptr;
 	} lidarData;
 	std::mutex lidarDataMutex;
 	static struct robotSpecs {
@@ -42,6 +57,9 @@ protected:
 		fl::InputVariable* distance;
 		fl::OutputVariable* steer;
 	 	fl::OutputVariable* speed;
+		fl::InputVariable* errorYaw;
+		fl::RuleBlock* obstacleAvoidance;
+		fl::RuleBlock* marbleCatcher;
 	} fuzzyVariables;
 	void cleanUp();
 public:
@@ -51,5 +69,4 @@ public:
 };
 
 }
-
 #endif /* SIMPLEROBOTCONTROL_H */
