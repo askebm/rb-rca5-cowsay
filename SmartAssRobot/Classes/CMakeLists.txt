@@ -10,6 +10,7 @@ string(REGEX REPLACE "(using namespace fl\n)" "\\1Engine* rba::CreateEngine\(\) 
 string(REGEX REPLACE "([A-Za-z)])\n" "\\1;\n" FUZZYENGINE ${FUZZYENGINE})
 
 #set(FUZZYENGINE "${FUZZY_ENGINE_SANITIZED}")
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/Agent)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Robot/fuzzyEngine.cpp.in
 	${CMAKE_CURRENT_SOURCE_DIR}/Robot/fuzzyEngine.cpp)
