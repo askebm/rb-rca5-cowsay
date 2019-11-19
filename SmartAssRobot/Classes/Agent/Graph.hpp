@@ -12,20 +12,22 @@ public:
 	class Vertex {
 		public:
 			typedef struct {int x,y;} Point;
+			typedef unsigned int VertID;
 		private:
 			static unsigned int cnt;
 		public:
-			unsigned int id;
+			VertID id;
 			std::vector<Vertex*> adjacent;
 			void addAdjacent(const Vertex* v);
 
 			Point position;
 			bool visited{false};
+			int marbles = 0;
 
 			Vertex(const Point p);
 	};
 private:
-	std::set<Vertex*> vertList;
+	std::vector<Vertex*> vertList;
 
 public:
 	unsigned int getSize() const;
@@ -35,6 +37,7 @@ public:
 	VisitState getVisitState() const;
 	
 	Vertex* currentVert;
+	std::vector<unsigned int> getAvailableIDs(const Vertex::VertID& id) const;
 
 	Graph();
 	virtual ~Graph();
