@@ -13,14 +13,20 @@ public:
 	typedef unsigned int Action;
 	typedef std::pair<Graph::VisitState,Graph::Vertex::VertID> State;
 	typedef std::pair<State,Action> StateAction;
-	typedef int Reward;
+	typedef double Reward;
 	typedef std::map<StateAction,Reward> Policy;
 private:
-	Reward defaultReward = 0;
+	struct {
+		Reward defaultReward = 0;
+		Reward isVisited = 0;
+		Reward unVisited = 0;
+		Reward marbleValue = 20;
+	} Rewards;
+
 	Policy policy;
 	Graph& graph;
 	double epsilon = 0.1; // greed factor
-	double alpha = 0.5; // learning rate
+	double alpha = 0.2; // learning rate
 	double lambda = 0.9; //discount factor
 
 	State currentState;
@@ -28,18 +34,23 @@ private:
 	Action getNextAction(const State& s);
 	Reward getReward(const State& s,const Action& a);
 	Reward getMaxReward(const State& s, Action& a);
+	Reward Qmax(const State& s, Action& a);
 	State getNextState(const Action& a, const State& s);
 	
 
-	void episode();
 
 	bool isTerminalState(const State& s);
 
 public:
 	void savePolicy(const std::string&& file);
 	void loadPolicy(const std::string&& file);
+	void setState(const State& s);
+
+	Reward episode(int time=200);
+
+	void perfection(int time=200,Reward delta=0.1);
 	
-	QAgent();
+	QAgent(State s, Graph& g);
 	virtual ~QAgent();
 };
 

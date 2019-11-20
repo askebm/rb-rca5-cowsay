@@ -6,6 +6,12 @@
 #include <algorithm>
 #include <cstdlib>
 
+QAgent::QAgent(QAgent::State s, Graph& g) : graph(g), currentState(s) {
+
+}
+
+QAgent::~QAgent(){}
+
 void QAgent::savePolicy(const std::string&& file) {
 	std::ofstream fout(file,std::ofstream::out);
 	if (!fout.is_open()) {
@@ -53,55 +59,83 @@ void QAgent::loadPolicy(const std::string&&  file) {
 	fin.close();
 }
 
-void QAgent::episode() {
-	while (!isTerminalState(currentState)) {
-		auto& s = currentState;
+QAgent::Reward QAgent::episode(int time) {
+	//std::cout << "New episode" << std::endl;
+	auto s = currentState;
+	//while (!isTerminalState(s)) {
+	auto delta = std::numeric_limits<Reward>::min();
+	while (0 < time ){
+		//std::cout << "Node ==> " << s.second+1 << std::endl;
 		auto a = getNextAction(s);
 		auto r = getReward(s,a);
 		auto sNew = getNextState(a,s);
 
 		StateAction sa{s,a};
+		auto oldQ = policy[sa];
 
-		policy[sa] += alpha * (r + lambda * getMaxReward(sNew,a) - policy[sa]);
+		policy[sa] += alpha * (r + lambda * Qmax(sNew,a) - policy[sa]);
+
+		delta = std::max(delta,std::abs( oldQ - policy[sa] ));
+		time -= graph.getCostByIDs(s.second,sNew.second);
+		s = sNew;
+	}
+	return delta;
+}
+
+void QAgent::perfection(int time,Reward delta) {
+	int i = 0;
+	auto d = std::numeric_limits<Reward>::max();
+	while( delta <  d ){
+		d = episode(time);
+		if (++i%100 == 0) {
+			std::cout << "Episode " << i << " <> Delta " << d << std::endl;
+		}
 	}
 }
 
 
 QAgent::Action QAgent::getNextAction(const State& s) {
-	Action a;
+	Action a = 0;
 	auto random = static_cast <double> (rand()) / static_cast <double> (RAND_MAX);
 	// We do the random thing here
 	if (random <= epsilon) {
 		auto availAction = graph.getAvailableIDs(s.second);
-		a = availAction[rand()%availAction.size()];
+		a = availAction[rand()%availAction.size()].first;
+	} else {
+		// We get the money here
+		Qmax(s,a);
 	}
-	// We get the money here
-	getMaxReward(s,a);
 	return a;
 }
 
 QAgent::Reward QAgent::getReward(const State& s,const Action& a){
 	StateAction sa{s,a};
-	// Do we hace policy on the StateAction pair yet
-	if (!policy.count(sa)) {
-		policy[sa] = defaultReward;
+	auto cost = graph.getCostByIDs(s.second,a);
+	Reward reward;
+	if (s.first[a]) {
+		reward = Rewards.unVisited;
+	} else {
+		reward = graph.getNumberOfMarblesByID(a);
 	}
-	return policy[sa];
+	//reward = (s.first[a]?Rewards.isVisited:Rewards.unVisited) - cost;
+	return reward;
 }
 
 QAgent::Reward QAgent::getMaxReward(const State& s, Action& a){
 	auto& id = s.second;
 	auto availAction = graph.getAvailableIDs(id);
-	a = availAction[0];
+	a = availAction[0].first;
 	auto r = std::numeric_limits<Reward>::min();
-	
 	for (const auto& i : availAction) {
-		if (r < getReward(s,a)) {
-			a = i;
+		auto rNew  = getReward(s,i.first);
+		if (r < rNew) {
+			a = i.first;
+			r = rNew;
 		}
 	}
 	return r;
 }
+
 QAgent::State QAgent::getNextState(const Action& a, const State& s){
 	auto sNew = s;
 	sNew.first[a] = 1;
@@ -118,3 +152,29 @@ bool QAgent::isTerminalState(const State& s) {
 	}
 	return true;
 }
+
+QAgent::Reward QAgent::Qmax(const QAgent::State& s, QAgent::Action& a) {
+	auto& id = s.second;
+	auto availAction = graph.getAvailableIDs(id);
+	auto v = std::numeric_limits<Reward>::lowest();
+	for (const auto& i : availAction) {
+		auto& action = i.first;
+		StateAction sa{s,action};
+		/*
+		if (!policy.count(sa)) {
+			policy[sa] = 0;
+		}
+		*/
+		auto vNew = policy[sa];
+		if (v < vNew) {
+			a = action;
+			v = vNew;
+		}
+	}
+	return v;
+}
+
+void QAgent::setState(const State& s){
+	currentState = s;
+}
+
