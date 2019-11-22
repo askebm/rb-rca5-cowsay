@@ -35,6 +35,7 @@ private:
     vector<Point1> important_nodes = {};
     int start_x;
     int start_y;
+    int findWay();
 public:
     BrushfireAl();
     void brushfire();

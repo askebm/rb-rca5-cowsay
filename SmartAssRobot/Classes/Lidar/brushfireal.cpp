@@ -146,7 +146,6 @@ void BrushfireAl::brushfire()
     {
         for(int y = 0; y <= binary_image.rows; y++)
         {
-
             grey_scale.at<uchar>(Point(x,y)) = pixel_array[counter1];
             counter1++;
         }
@@ -172,7 +171,7 @@ void BrushfireAl::addNodes(vector<int> pixel_array)
                 colourPath[2] = 0;
                 colour_img.at<Vec3b>(Point(x,y)) = colourPath;
             }
-            else if(pixel_array[counter] == 255)
+            else if(pixel_array[counter] > 25)
             {
                 colourPath[0] = 255;
                 colourPath[1] = 0;
@@ -262,4 +261,7 @@ void BrushfireAl::findNodes()
         }
     }
 }
+//int BrushfireAl::findway()
+//{
 
+//}
