@@ -9,3 +9,6 @@ target_link_libraries(SimpleRobotControllerInstance ${LIBS} SimpleRobotControl $
 
 add_executable(QLearner QLearner.cpp)
 target_link_libraries(QLearner ${LIBS} QAgent)
+
+add_executable(QL_Circle_test QL_circle_test.cpp)
+target_link_libraries(QL_Circle_test ${LIBS} QAgent)

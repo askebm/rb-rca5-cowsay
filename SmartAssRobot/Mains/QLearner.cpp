@@ -33,9 +33,9 @@ int main(int argc, char *argv[])
 
 	QAgent agent(state,graph);
 	std::cout << agent.episode() << std::endl;
-	agent.perfection(50);
-
-
+	for (int i = 0; i < 20000; ++i) {
+		agent.episode(50);
+	}
 
 	return 0;
 }

@@ -59,12 +59,19 @@ void QAgent::loadPolicy(const std::string&&  file) {
 	fin.close();
 }
 
-QAgent::Reward QAgent::episode(int time) {
+QAgent::Reward QAgent::episode(int time,bool print) {
 	//std::cout << "New episode" << std::endl;
 	auto s = currentState;
 	//while (!isTerminalState(s)) {
 	auto delta = std::numeric_limits<Reward>::min();
-	while (0 < time ){
+	if (print) {
+		std::cout << "Start: " << s.second << std::endl;
+	}
+
+	Reward rSum = 0;
+
+	double TIME = time;
+	while (true){
 		//std::cout << "Node ==> " << s.second+1 << std::endl;
 		auto a = getNextAction(s);
 		auto r = getReward(s,a);
@@ -73,26 +80,23 @@ QAgent::Reward QAgent::episode(int time) {
 		StateAction sa{s,a};
 		auto oldQ = policy[sa];
 
+		TIME -= graph.getCostByIDs(s.second,sNew.second);
+		if (TIME < 0) {
+			break;
+		}
+
+		rSum += r;
+
 		policy[sa] += alpha * (r + lambda * Qmax(sNew,a) - policy[sa]);
 
 		delta = std::max(delta,std::abs( oldQ - policy[sa] ));
-		time -= graph.getCostByIDs(s.second,sNew.second);
 		s = sNew;
-	}
-	return delta;
-}
-
-void QAgent::perfection(int time,Reward delta) {
-	int i = 0;
-	auto d = std::numeric_limits<Reward>::max();
-	while( delta <  d ){
-		d = episode(time);
-		if (++i%100 == 0) {
-			std::cout << "Episode " << i << " <> Delta " << d << std::endl;
+		if (print) {
+			std::cout << "At: " << s.second << std::endl;
 		}
 	}
+	return rSum;
 }
-
 
 QAgent::Action QAgent::getNextAction(const State& s) {
 	Action a = 0;

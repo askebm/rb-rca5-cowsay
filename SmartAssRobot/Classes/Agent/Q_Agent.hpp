@@ -25,9 +25,6 @@ private:
 
 	Policy policy;
 	Graph& graph;
-	double epsilon = 0.1; // greed factor
-	double alpha = 0.2; // learning rate
-	double lambda = 0.9; //discount factor
 
 	State currentState;
 
@@ -42,14 +39,16 @@ private:
 	bool isTerminalState(const State& s);
 
 public:
+	double epsilon = 0.1; // greed factor
+	double alpha = 0.2; // learning rate
+	double lambda = 0.9; //discount factor
+
 	void savePolicy(const std::string&& file);
 	void loadPolicy(const std::string&& file);
 	void setState(const State& s);
 
-	Reward episode(int time=200);
+	Reward episode(int time=200,bool print = false);
 
-	void perfection(int time=200,Reward delta=0.1);
-	
 	QAgent(State s, Graph& g);
 	virtual ~QAgent();
 };
