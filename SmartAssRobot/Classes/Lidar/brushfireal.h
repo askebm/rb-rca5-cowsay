@@ -36,6 +36,7 @@ private:
     int start_x;
     int start_y;
     int findWay();
+    vector<vector<int>> matrix_real;
 public:
     BrushfireAl();
     void brushfire();

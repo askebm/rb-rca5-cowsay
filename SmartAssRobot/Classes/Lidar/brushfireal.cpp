@@ -142,13 +142,18 @@ void BrushfireAl::brushfire()
         i++;
     }
     int counter1 = 0;
+    vector<vector<int>> matrix(binary_image.cols, vector<int>(binary_image.rows));
+    matrix_real = matrix;
     for(int x = 0; x <= binary_image.cols; x++)
     {
         for(int y = 0; y <= binary_image.rows; y++)
         {
             grey_scale.at<uchar>(Point(x,y)) = pixel_array[counter1];
+            matrix_real[x][y] = pixel_array[counter1];
+            printf("%d     ", matrix_real[x][y]);
             counter1++;
         }
+                       printf("\n");
     }
     addNodes(pixel_array);
 }
@@ -261,7 +266,3 @@ void BrushfireAl::findNodes()
         }
     }
 }
-//int BrushfireAl::findway()
-//{
-
-//}
