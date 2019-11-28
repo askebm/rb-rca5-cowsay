@@ -18,15 +18,15 @@ void roadmap::remove_nodes(vector<pixel> & nodes, const pixel p) const noexcept
 void roadmap::gerenate_GVD(const Mat & brushfire, const int max_value)
 {
     roadMap = brushfire.clone();
-
-    Mat contourImage(roadMap.rows, roadMap.cols, CV_8UC1) ;
+    Mat contourImage(roadMap.rows, roadMap.cols, CV_8UC1);
+            cout << "im at roadmap" << endl;
     contourImage.setTo(0);
 
     vector<pixel> nodes;
-
+    cout << "im here" << endl;
     gerenate_GVD1(brushfire, nodes, max_value);
     gerenate_GVD2(nodes);
-
+     cout << "im at roadmap" << endl;
     for(const pixel p : nodes )
     {
         contourImage.at<uchar>(p.row, p.col) = 255;
@@ -34,6 +34,7 @@ void roadmap::gerenate_GVD(const Mat & brushfire, const int max_value)
     gerenate_GVD2(brushfire, contourImage, nodes);
     remove_duplicate_nodes(nodes);
     gerenate_GVD3(nodes);
+
 }
 void roadmap::draw_roadmap(Mat & dst) const noexcept
 {

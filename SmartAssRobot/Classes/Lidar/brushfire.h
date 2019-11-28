@@ -7,7 +7,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 
 #define BRUSHFIRE_STEP_SIZE 1
-#define BRUSHFIRE_BEGIN 100 //100
+#define BRUSHFIRE_BEGIN 1 //100
 
 #define DEBUG_BRUSHFIRE  0
 

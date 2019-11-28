@@ -143,13 +143,23 @@ int main(int _argc, char **_argv) {
   //BrushfireAl a;
 
   Mat image = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png");
-  Mat new1;
+  mutex_l.lock();
+  Mat new1 = image.clone();
   Mat new2;
-  int max = generate_brushfire(image,new1);
-  roadmap g(new1,max);
-  g.draw_roadmap(new2);
+  Mat new3;
+ // threshold(new1, new2, 127,255, THRESH_BINARY);
+//  cvtColor(new1, new2, COLOR_GRAY2BGR);
+  mutex_l.unlock();
+  int max = generate_brushfire(new1,new2);
+  roadmap g(new2,max);
+  g.draw_roadmap(new3);
+  resize(new3, new3, Size(), 10, 10, INTER_CUBIC); // upscale 10x
   cv::namedWindow("Image");
-  cv::imshow("Image", new2);
+  cv::imshow("Image", new3);
+  resize(image, image, Size(), 10, 10, INTER_CUBIC); // upscale 10x
+  cv::namedWindow("Image");
+  cv::imshow("Image", new3);
+
   // Loop
   while (true) {
     gazebo::common::Time::MSleep(10);
