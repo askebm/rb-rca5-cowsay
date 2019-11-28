@@ -11,7 +11,7 @@ void check_neighbors(Mat & image,  vector<pixel_t> & neighbors, int row, int col
             {
                 if(c > -1 && c < image.cols)
                 {
-                    if(image.at<Vec3b>(r,c) == Vec3b(255,255,255))
+                    if(image.at<cv::Vec3b>(r,c) == cv::Vec3b(255,255,255))
                     {
                         pixel_t tmp;
                         tmp.row = r;
@@ -36,8 +36,8 @@ int generate_brushfire(Mat & source, Mat & dst)
     {
         for(int col = 0; col < cols ; col++ )
         {
-            if(source.at<Vec3b>(row,col) == Vec3b(0,0,0))
-                    check_neighbors(source, neighbors, row, col);
+            if(source.at<cv::Vec3b>(row,col) == cv::Vec3b(0,0,0))
+                check_neighbors(source, neighbors, row, col);
         }
     }
     cout << "Checked the image for obstalce found " << neighbors.size() << " neighbors" <<  endl;
@@ -48,21 +48,21 @@ int generate_brushfire(Mat & source, Mat & dst)
     while(neighbors.size() != 0 )
     {
 
-        vector<pixel_t> newneighbors;
+        std::vector<pixel_t> newneighbors;
 
         for(pixel_t pixel : neighbors )
         {
 
            if(dst.at<cv::Vec3b>(pixel.row, pixel.col) == cv::Vec3b(255,255,255) )
            {
-              dst.at<cv::Vec3b>(pixel.row, pixel.col) = cv::Vec3b(color, color,color);
-              check_neighbors(dst, newneighbors, pixel.row, pixel.col);
+               dst.at<cv::Vec3b>(pixel.row, pixel.col) = cv::Vec3b(color, color,color);
+               check_neighbors(dst, newneighbors, pixel.row, pixel.col);
            }
         }
-            color += BRUSHFIRE_STEP_SIZE;
-            neighbors = newneighbors;
 
-     cout << "There are " << newneighbors.size() << " new neighbors" <<  endl;
+        color += BRUSHFIRE_STEP_SIZE;
+        neighbors = newneighbors;
+
     }
 
     color -= BRUSHFIRE_STEP_SIZE;

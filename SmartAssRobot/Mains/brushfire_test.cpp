@@ -145,12 +145,11 @@ int main(int _argc, char **_argv) {
   Mat image = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png");
   Mat new1;
   Mat new2;
-  //resize(image, image, Size(), 5, 5, INTER_CUBIC); // upscale 10x
   int max = generate_brushfire(image,new1);
   roadmap g(new1,max);
   g.draw_roadmap(new2);
-  cv::namedWindow("Image_o");
-  cv::imshow("Image_o", new2);
+  cv::namedWindow("Image");
+  cv::imshow("Image", new2);
   // Loop
   while (true) {
     gazebo::common::Time::MSleep(10);

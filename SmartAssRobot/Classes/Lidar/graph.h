@@ -163,8 +163,6 @@ struct intersection {
 
     friend road;
 
-
-
     bool move(std::vector<cv::Point> & n1, const cv::Mat & brushfire, cv::Mat & map, cv::Point start, cv::Point end);
     void move_draw(const std::vector<cv::Point> & n1, std::vector<pixel> & n2, cv::Mat & map);
 
