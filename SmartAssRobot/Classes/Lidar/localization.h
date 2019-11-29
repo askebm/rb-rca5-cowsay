@@ -4,28 +4,35 @@
 #include <gazebo/gazebo_client.hh>
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <iostream>
+#include <opencv2/opencv.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 #include <iostream>
 #include <vector>
 #include <math.h>       /* atan2 */
 
 using namespace std;
+using namespace cv;
+
+struct sample{
+    vector<int> state;
+    int weight;
+
+};
 
 class Localization
 {
 public:
     Localization();
     ~Localization();
-    //void localization();
-    vector<vector<float>> lineExtraction(vector<float> p, vector<float> tetha, int n ); // Incremental algorithm
-    void leastSquare(vector<float> p, vector<float> tetha, int n );
-    void rawData(float range, float angle, int counter);
+    vector<sample> resampling(vector<sample> M);
+
 
 private:
-    vector<vector<float>> points;
-    float r;
-    float alpha;
-    double threshhold_d = 5;
+
 
 };
 

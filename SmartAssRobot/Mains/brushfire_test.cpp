@@ -52,53 +52,56 @@ void cameraCallback(ConstImageStampedPtr &msg)
     mutex_l.unlock();
 }
 
-void lidarCallback(ConstLaserScanStampedPtr &msg) {
-//  std::cout << ">> " << msg->DebugString() << std::endl;
-float angle_min = float(msg->scan().angle_min());
-//  double angle_max = msg->scan().angle_max();
-float angle_increment = float(msg->scan().angle_step());
+void lidarCallback(ConstLaserScanStampedPtr &msg)
+{
+    //  std::cout << ">> " << msg->DebugString() << std::endl;
+    float angle_min = float(msg->scan().angle_min());
+    //  double angle_max = msg->scan().angle_max();
+    float angle_increment = float(msg->scan().angle_step());
 
-float range_min = float(msg->scan().range_min());
-float range_max = float(msg->scan().range_max());
+    float range_min = float(msg->scan().range_min());
+    float range_max = float(msg->scan().range_max());
 
-int sec = msg->time().sec();
-int nsec = msg->time().nsec();
+    int sec = msg->time().sec();
+    int nsec = msg->time().nsec();
 
-int nranges = msg->scan().ranges_size();
-int nintensities = msg->scan().intensities_size();
+    int nranges = msg->scan().ranges_size();
+    int nintensities = msg->scan().intensities_size();
 
-assert(nranges == nintensities);
+    assert(nranges == nintensities);
 
-int width = 400;
-int height = 400;
-float px_per_m = 200 / range_max;
+    int width = 400;
+    int height = 400;
+    float px_per_m = 200 / range_max;
 
-cv::Mat im(height, width, CV_8UC3);
-im.setTo(0);
-for (int i = 0; i < nranges; i++) {
-float angle = angle_min + i * angle_increment;
-float range = std::min(float(msg->scan().ranges(i)), range_max);
-//    double intensity = msg->scan().intensities(i);
-cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
-                    200.5f - range_min * px_per_m * std::sin(angle));
-cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
-                  200.5f - range * px_per_m * std::sin(angle));
-cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
-         cv::LINE_AA, 4);
+    cv::Mat im(height, width, CV_8UC3);
+    im.setTo(0);
+    for (int i = 0; i < nranges; i++)
+    {
+        float angle = angle_min + i * angle_increment;
+        float range = std::min(float(msg->scan().ranges(i)), range_max);
+        //    double intensity = msg->scan().intensities(i);
+        cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
+                            200.5f - range_min * px_per_m * std::sin(angle));
+        cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
+                          200.5f - range * px_per_m * std::sin(angle));
+        cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
+                 cv::LINE_AA, 4);
 
-//    std::cout << angle << " " << range << " " << intensity << std::endl;
+        //    std::cout << angle << " " << range << " " << intensity << std::endl;
+    }
+    cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
+    cv::putText(im, std::to_string(sec) + ":" + std::to_string(nsec),
+              cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
+              cv::Scalar(255, 0, 0));
+
+    mutex_l.lock();
+    cv::imshow("lidar", im);
+    mutex_l.unlock();
 }
-cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
-cv::putText(im, std::to_string(sec) + ":" + std::to_string(nsec),
-          cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
-          cv::Scalar(255, 0, 0));
 
-mutex_l.lock();
-cv::imshow("lidar", im);
-mutex_l.unlock();
-}
-
-int main(int _argc, char **_argv) {
+int main(int _argc, char **_argv)
+{
 // Load gazebo
 gazebo::client::setup(_argc, _argv);
 
@@ -158,39 +161,41 @@ cv::imshow("Image", new3);
 mutex_l.unlock();
 
 // Loop
-while (true) {
-gazebo::common::Time::MSleep(10);
+    while (true)
+    {
+        gazebo::common::Time::MSleep(10);
 
-mutex_l.lock();
-int key = cv::waitKey(1);
-mutex_l.unlock();
+        mutex_l.lock();
+        int key = cv::waitKey(1);
+        mutex_l.unlock();
 
-if (key == key_esc)
-  break;
+        if (key == key_esc)
+            break;
 
-if ((key == key_up) && (speed <= 1.2f))
-  speed += 0.05;
-else if ((key == key_down) && (speed >= -1.2f))
-  speed -= 0.05;
-else if ((key == key_right) && (dir <= 0.4f))
-  dir += 0.05;
-else if ((key == key_left) && (dir >= -0.4f))
-  dir -= 0.05;
-else {
-  // slow down
-  //      speed *= 0.1;
-  //      dir *= 0.1;
-}
+        if ((key == key_up) && (speed <= 1.2f))
+            speed += 0.05;
+        else if ((key == key_down) && (speed >= -1.2f))
+            speed -= 0.05;
+        else if ((key == key_right) && (dir <= 0.4f))
+            dir += 0.05;
+        else if ((key == key_left) && (dir >= -0.4f))
+            dir -= 0.05;
+        else
+        {
+          // slow down
+          //      speed *= 0.1;
+          //      dir *= 0.1;
+        }
 
-//Generate a pose
-ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
+        //Generate a pose
+        ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
 
-// Convert to a pose message
-gazebo::msgs::Pose msg;
-gazebo::msgs::Set(&msg, pose);
-movementPublisher->Publish(msg);
-}
+        // Convert to a pose message
+        gazebo::msgs::Pose msg;
+        gazebo::msgs::Set(&msg, pose);
+        movementPublisher->Publish(msg);
+    }
 
-// Make sure to shut everything down.
-gazebo::client::shutdown();
+    // Make sure to shut everything down.
+    gazebo::client::shutdown();
 }

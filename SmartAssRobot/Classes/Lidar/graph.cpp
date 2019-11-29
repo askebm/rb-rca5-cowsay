@@ -608,7 +608,7 @@ bool roadmap::detect_indre_cornor(const Mat & map, const int row, const int col,
     }
     return false;
 }
-int roadmap::find_moving_directions(const Mat & map, vector<direction> & dir_list, const pixel p,    Vec3b color) const noexcept
+int roadmap::find_moving_directions(const Mat & map, vector<direction> & dir_list, const pixel p, Vec3b color) const noexcept
 {
     dir_list.clear();
 
@@ -640,14 +640,12 @@ int roadmap::find_moving_directions(const Mat & map, vector<direction> & dir_lis
 }
 int roadmap::reduce_directions(vector<direction> & dir_list, const direction dir) const noexcept
 {
-
     for(size_t i = 0; i < dir_list.size(); i++ )
     {
         if(dir == dir_list[i])
             dir_list.erase(dir_list.begin() +i );
         else
         {
-
             if(( dir == LEFT_UP && dir_list[i] == RIGHT_DOWN) || (dir == RIGHT_DOWN && dir_list[i] == LEFT_UP) )
                 dir_list.erase(dir_list.begin() + i );
             else if ((dir == RIGHT_UP && dir_list[i] == LEFT_DOWN) || (dir == LEFT_DOWN && dir_list[i] == RIGHT_UP)  )
@@ -1096,7 +1094,6 @@ bool roadmap::move(vector<Point> & n1, const Mat & brushfire, Mat & map, Point s
     return true;
 }
 
-
 void roadmap::move_draw(const vector<Point> & n1, vector<pixel> & n2, Mat & map){
     for(const Point p : n1 )
     {
@@ -1107,7 +1104,6 @@ void roadmap::move_draw(const vector<Point> & n1, vector<pixel> & n2, Mat & map)
         }
     }
 }
-
 
 int roadmap::remove_duplicate_nodes(vector<pixel> & nodes)
 {
