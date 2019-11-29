@@ -6,19 +6,18 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#define BRUSHFIRE_STEP_SIZE 1
-#define BRUSHFIRE_BEGIN 1 //100
+#define value_step 1
+#define starting_value 1
 
-#define DEBUG_BRUSHFIRE  0
 
 using namespace std;
 using namespace cv;
 
-struct pixel_t {
+struct pixel {
 
         int row;
         int col;
 };
 
-void check_neighbors(Mat & image,  vector<pixel_t> & neighbors, int row, int col);
+void check_neighbours(Mat & image,  vector<pixel> & neighbors, int row, int col);
 int generate_brushfire(Mat & image, Mat & dst);

@@ -14,19 +14,16 @@ void roadmap::remove_nodes(vector<pixel> & nodes, const pixel p) const noexcept
             nodes.erase(nodes.begin() + i );
     }
 }
-
 void roadmap::gerenate_GVD(const Mat & brushfire, const int max_value)
 {
     roadMap = brushfire.clone();
     Mat contourImage(roadMap.rows, roadMap.cols, CV_8UC1);
-            cout << "im at roadmap" << endl;
     contourImage.setTo(0);
 
     vector<pixel> nodes;
-    cout << "im here" << endl;
+
     gerenate_GVD1(brushfire, nodes, max_value);
     gerenate_GVD2(nodes);
-     cout << "im at roadmap" << endl;
     for(const pixel p : nodes )
     {
         contourImage.at<uchar>(p.row, p.col) = 255;
@@ -36,19 +33,19 @@ void roadmap::gerenate_GVD(const Mat & brushfire, const int max_value)
     gerenate_GVD3(nodes);
 
 }
-void roadmap::draw_roadmap(Mat & dst) const noexcept
+void roadmap::draw_roadmap(Mat & return_image) const noexcept
 {
-    dst = Mat(roadMap.rows, roadMap.cols, CV_8UC3);
-    dst.setTo(255);
+   // return_image = Mat(roadMap.rows, roadMap.cols, CV_8UC3);
+  //  return_image.setTo(255);
     for(const road r : roadsGraph )
     {
         if(r.pt1 != -1 && r.pt2 != -1)
         {
             const intersection i1 = graph[r.pt1];
             const intersection i2 = graph[r.pt2];
-            dst.at<Vec3b>(i1.point.row, i1.point.col) = Vec3b(255,0,0);
-            dst.at<Vec3b>(i2.point.row, i2.point.col) =  Vec3b(255,0,0);
-            explore_draw(dst, i1.point, i1.point, r.dir, i2.point);
+            return_image.at<Vec3b>(i1.point.row, i1.point.col) = Vec3b(0,255,0);
+            return_image.at<Vec3b>(i2.point.row, i2.point.col) =  Vec3b(0,255,0);
+            explore_draw(return_image, i1.point, i1.point, r.dir, i2.point);
         }
     }
 }
@@ -173,7 +170,7 @@ void roadmap::gerenate_GVD1(const Mat & brushfire, vector<pixel> & nodes, const 
                 create_intersection(point);
                 continue;
             }
-            flag = detect_indre_cornor(brushfire, row, col, Vec3b(i-BRUSHFIRE_STEP_SIZE,i - BRUSHFIRE_STEP_SIZE,i - BRUSHFIRE_STEP_SIZE));
+            flag = detect_indre_cornor(brushfire, row, col, Vec3b(i-value_step,i - value_step,i - value_step));
             if(flag)
             {
                 nodes.push_back(point);
@@ -184,12 +181,12 @@ void roadmap::gerenate_GVD1(const Mat & brushfire, vector<pixel> & nodes, const 
             int n = check_neighbors(brushfire,i, row, col);  // Same index as the current pixel
             int n2;
 
-            if(i != BRUSHFIRE_BEGIN)
-                n2 = check_neighbors(brushfire,i - BRUSHFIRE_STEP_SIZE, row,col);  // One lower then th current pixel
+            if(i != starting_value)
+                n2 = check_neighbors(brushfire,i - value_step, row,col);  // One lower then th current pixel
             else
                 n2 = check_neighbors(brushfire,0,row,col);
 
-            int n3 = check_neighbors(brushfire,i + BRUSHFIRE_STEP_SIZE, row, col); // One high then the current pixel
+            int n3 = check_neighbors(brushfire,i + value_step, row, col); // One high then the current pixel
 
             if(i == max_value && brushfire.at< Vec3b>(row, col)  == Vec3b((uchar) max_value, (uchar) max_value, (uchar) max_value ) )
             {
@@ -753,104 +750,6 @@ void roadmap::create_road( Mat & map, const direction dir, const pixel p, const 
     }
 }
 
-void roadmap::expand(Mat & map, const pixel p, const direction dir)
-{
-    int move_n;
-    int move_row = 0;
-    int move_col = 0;
-
-    switch(dir)
-    {
-        case LEFT_UP:
-            move_row = -1;
-        case LEFT:
-            move_col = -1;
-            break;
-        case RIGHT_UP:
-            move_col = 1;
-        case UP:
-            move_row = -1;
-            break;
-        case RIGHT_DOWN:
-            move_row = 1;
-        case RIGHT:
-            move_col = 1;
-            break;
-        case LEFT_DOWN:
-            move_col = -1;
-        case DOWN:
-            move_row = 1;
-            break;
-    }
-
-    if(p.row == 70 && p.col == 107)
-    {
-        map.at< Vec3b>(p.row + move_row, p.col + move_col) = Vec3b(255,0,255);
-        return;
-    }
-
-    do {
-        map.at<Vec3b>(p.row + move_row, p.col + move_col) = Vec3b(0,255,255);
-
-        vector<direction> green, blue, yellow;
-        move_n = find_moving_directions(map, green, (pixel) {p.row + move_row, p.col + move_col},    Vec3b(0,255,0) )
-            + find_moving_directions(map, blue, (pixel) {p.row + move_row, p.col + move_col},    Vec3b(255,0,0) ) ;
-
-        if(move_row > 0)
-            move_row++;
-        else if(move_row < 0)
-            move_row--;
-
-        if(move_col > 0)
-            move_col++;
-        else if(move_col < 0)
-            move_col--;
-    }
-    while(move_n < 2 && !(move_row == 0 && move_col == 0) );
-}
-string roadmap::print(const direction d) const noexcept
-{
-    switch(d) {
-        case LEFT:
-            return "LEFT";
-        case LEFT_UP:
-            return "LEFT_UP";
-        case UP:
-            return "UP";
-        case RIGHT_UP:
-            return "RIGHT_UP";
-        case RIGHT:
-            return "RIGHT";
-        case RIGHT_DOWN:
-            return "RIGHT_DOWN";
-        case DOWN:
-            return "DOWN";
-        case LEFT_DOWN:
-            return "LEFT_DOWN";
-    }
-}
-string roadmap::print(const intersection i ) const noexcept
-{
-
-    string s = "Index: "+ to_string(i.index) + " Local (" + to_string(i.point.row) + ", " + to_string(i.point.col)  + ") Connected to roads: [";
-    for(const int r : i.road_numbers )
-    {
-        s+= " ";
-        s += to_string(r) + ",";
-    }
-    s += "]";
-    return s;
-
-}
-string roadmap::print(const road r) const noexcept
-{
-    return "Index: " + to_string(r.index) + " Direction " + print(r.dir) + " Intersections: [" + to_string(r.pt1) + ", " + to_string(r.pt2) + "]";
-}
-
-string roadmap::print(const pixel p) const noexcept
-{
-    return "(" + to_string(p.row) + ", " + to_string(p.col) +  ")";
-}
 roadmap::direction roadmap::degress2direction(const float angle) const noexcept
 {
 
@@ -1017,8 +916,6 @@ void roadmap::explore_draw(Mat & map, const pixel p, const pixel c_p, const dire
             p_new = pixel(c_p.row + 1, c_p.col - 1);
             break;
     }
-
-
     explore_draw(map,p,p_new, dir, move, nodes);
 
 }
@@ -1198,7 +1095,6 @@ bool roadmap::move(vector<Point> & n1, const Mat & brushfire, Mat & map, Point s
     }
     return true;
 }
-
 
 
 void roadmap::move_draw(const vector<Point> & n1, vector<pixel> & n2, Mat & map){

@@ -8,8 +8,6 @@
 #include <limits>
 #include <cstdlib>
 
-#define DEBUG_ROADMAP 0
-
 using namespace std;
 using namespace cv;
 
@@ -28,7 +26,7 @@ public:
     roadmap(const cv::Mat & brushfire, const int max_value) noexcept;
     void gerenate_GVD(const cv::Mat & brushfire, const int max_value);
     void optimize_GVD();
-    void draw_roadmap(cv::Mat & dst) const noexcept;
+    void draw_roadmap(cv::Mat & return_image) const noexcept;
     int gradient2(const cv::Mat & brushfire, const cv::Mat & src, const int row, const int col);
     void gradient(const cv::Mat & src, cv::Mat & angleDst, cv::Mat & magDst, std::vector<std::tuple<float, cv::Vec3b>> & angle, std::vector< std::tuple<float,cv::Vec3b>> & mag);
     ~roadmap();
@@ -47,7 +45,6 @@ private:
 
 struct road
 {
-
     int pt1 = -1;
     int pt2 = -1;
     const direction dir;
@@ -77,7 +74,6 @@ struct road
     }
     void remove_road()
     {
-
         pt1 = -1;
         pt2 = -1;
     }
@@ -106,7 +102,6 @@ struct intersection {
         {
             if(road_numbers[i] == road_number)
                 road_numbers.erase(road_numbers.begin() + i );
-
         }
     }
 };
@@ -144,12 +139,7 @@ struct intersection {
     int find_moving_directions(const cv::Mat & map, std::vector<direction> & dir_list, const pixel p, const cv::Vec3b color) const noexcept;
     int reduce_directions(std::vector<direction> & dir_list, const direction dir) const noexcept;
     void create_road(cv::Mat & map, const direction dir, const pixel p, const pixel c_p, std::vector<pixel> & nodes, const int road) noexcept;
-    void expand(cv::Mat & map, const pixel p, const direction dir);
 
-    std::string print(const direction d) const noexcept;
-    std::string print(const intersection i) const noexcept;
-    std::string print(const road r) const noexcept;
-    std::string print(const pixel p) const noexcept;
 
     direction degress2direction(const float angle) const noexcept;
     direction static opposite_direction(const direction dir) noexcept;
@@ -160,8 +150,6 @@ struct intersection {
     int explore_move(const cv::Mat & map, const pixel p, const pixel c_p, const direction direction) const noexcept;
     void explore_draw(cv::Mat & map, const pixel p, const pixel c_p, const direction dir, const int move_left, std::vector<pixel> & nodes) noexcept;
     void explore_draw(cv::Mat & map, const pixel p, const pixel c_p, const direction dir, const pixel end) const noexcept;
-
-    friend road;
 
     bool move(std::vector<cv::Point> & n1, const cv::Mat & brushfire, cv::Mat & map, cv::Point start, cv::Point end);
     void move_draw(const std::vector<cv::Point> & n1, std::vector<pixel> & n2, cv::Mat & map);
