@@ -1,28 +1,7 @@
 #ifndef LOCALIZATION_H
 #define LOCALIZATION_H
 
-#include <gazebo/gazebo_client.hh>
-#include <gazebo/msgs/msgs.hh>
-#include <gazebo/transport/transport.hh>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <iostream>
-#include <opencv2/opencv.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <time.h>
-
-// boost headers
-#include <boost/random.hpp>
-#include <boost/math/distributions.hpp> // import all distributions
-#include <boost/random/normal_distribution.hpp>
-#include <boost/random/mersenne_twister.hpp>
-
 #include "laserscanner.h"
-
 
 using namespace std;
 using namespace cv;

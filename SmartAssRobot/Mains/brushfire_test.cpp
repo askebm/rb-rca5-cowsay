@@ -56,9 +56,10 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
 {
     //  std::cout << ">> " << msg->DebugString() << std::endl;
     float angle_min = float(msg->scan().angle_min());
-    //  double angle_max = msg->scan().angle_max();
+    double angle_max = float(msg->scan().angle_max());
     float angle_increment = float(msg->scan().angle_step());
 
+    cout << angle_min << " " << angle_max << endl;
     float range_min = float(msg->scan().range_min());
     float range_max = float(msg->scan().range_max());
 
@@ -68,6 +69,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
     int nranges = msg->scan().ranges_size();
     int nintensities = msg->scan().intensities_size();
 
+    //cout << nranges << endl;
     assert(nranges == nintensities);
 
     int width = 400;
@@ -88,7 +90,6 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
         cv::line(im, startpt * 16, endpt * 16, cv::Scalar(255, 255, 255, 255), 1,
                  cv::LINE_AA, 4);
 
-        //    std::cout << angle << " " << range << " " << intensity << std::endl;
     }
     cv::circle(im, cv::Point(200, 200), 2, cv::Scalar(0, 0, 255));
     cv::putText(im, std::to_string(sec) + ":" + std::to_string(nsec),

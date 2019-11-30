@@ -53,7 +53,7 @@ void Localization::prediction(Laserscanner s)
 {
     boost::random::normal_distribution<double> error_vel(0, 0.2);
     boost::random::normal_distribution<double> error_angle(0, 0.2);
-    bool updated = s.hasUpdated();
+    bool updated = s.hasUpdated(updated);
 
     if(updated)
     {
@@ -139,11 +139,6 @@ vector<particle> Localization::resampling(vector<particle> M)
 
     }
 
-
-
-
-
-
     return new_m;
 }
 
@@ -152,13 +147,13 @@ void Localization::updatePos()
 
 
 
-    resampling();
+    //resampling();
 }
 
 bool Localization::checkCoordinates(double x, double y)
 {
-    double rows = map.rows();
-    double cols = map.cols();
+    double rows = map.rows;
+    double cols = map.cols;
     if(x > rows -1 || x < 0)
     {
         return false;
