@@ -58,7 +58,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
 {
     //  std::cout << ">> " << msg->DebugString() << std::endl;
     float angle_min = float(msg->scan().angle_min());
-    double angle_max = float(msg->scan().angle_max());
+    //double angle_max = float(msg->scan().angle_max());
     float angle_increment = float(msg->scan().angle_step());
 
     //cout << angle_min << " " << angle_increment << endl;

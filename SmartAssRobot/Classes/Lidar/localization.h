@@ -14,6 +14,8 @@ public:
     double x;
     double y;
     double beta;
+    double likelihood;
+    vector<rays> ray;
 
     double getY();
     double getX();
@@ -30,7 +32,7 @@ public:
     ~Localization();
     void init(Laserscanner *ls);
     void prediction(Laserscanner *sh);
-    void updatePos();
+    void updatePos(Laserscanner *lsa);
     vector<particle> resampling(vector<particle> M);
     bool checkCoordinates(double x, double y);
     // variables

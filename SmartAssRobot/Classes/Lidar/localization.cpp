@@ -56,6 +56,7 @@ void Localization::init(Laserscanner *ls)
         p.x = start_x;
         p.y = start_y;
         p.beta = start_beta;
+        p.weight = 1/N;
         if(checkCoordinates(start_x, start_y))
         {
            //update the predicted values and last time.
@@ -64,14 +65,14 @@ void Localization::init(Laserscanner *ls)
         else
             samples[i] = {};
     }
-    prediction(ls);
+    updatePos(ls);
 
 }
 void Localization::prediction(Laserscanner *sh)
 {
     boost::random::normal_distribution<double> error_vel(0, 0.2);
     boost::random::normal_distribution<double> error_angle(0, 0.2);
-    bool updated = true;//sh->hasUpdated(updated);
+    bool updated = sh->hasUpdated(updated);
 
     cout << "i am here before the for loop in init" << endl;
     if(updated)
@@ -131,9 +132,55 @@ void Localization::prediction(Laserscanner *sh)
     }
     else
         prediction(sh);
-   // updatePos();
+
+    updatePos(sh);
 }
-vector<particle> Localization::resampling(vector<particle> M)
+void Localization::updatePos(Laserscanner *lsa)
+{
+    double sigma = 2.0;
+    //get the rays for robot;
+    vector<rays> robot_rays;
+    rays ray;
+    for(int i = 0; i < N; i++)
+    {
+        ray.distance = lsa->range[i];
+        ray.dir = lsa->angle[i];
+        robot_rays.push_back(ray);
+    }
+    vector<rays> temp;
+    //get rays for samples
+    for(int i = 0; i < N; i++)
+    {
+        temp = lsa->rayCasting(samples[i].getX(),samples[i].getY(), samples[i].getBeta());
+        samples[i].ray = temp;
+    }
+
+    //calculate the likelihood for a particle is around the robot for all particles.
+    double likelihood = 1;
+    double norm_const = 0;
+    vector<double> temp_weight;
+    for(int i = 0; i < N; i++) // samples size
+    {
+        for(int j = 0; j < N; j++) //nranges size - FIX
+        {
+            likelihood =* 1/(sigma*sqrt(2*M_PI))*exp(-(pow(samples[i].ray[j]-robot_rays[i],2))/(2*pow(sigma,2)));
+        }
+        //save the likelihood for the particle
+        samples[i].likelihood = likelihood;
+        //cal new weight based on the likelihood of the particles rays.
+        temp_weight[i] = samples[i].weight * samples[i].likelihood;
+        norm_const =+ samples[i].weight;
+    }
+    //normalize new weight of particles
+    for(int i = 0; i < N; i++)
+    {
+        samples[i].weight = temp_weight[i]/norm_const;
+    }
+
+    resampling();
+
+}
+vector<particle> Localization::resampling()
 {
     vector<particle> new_m;
     boost::random::normal_distribution<> delta(0, N-1);
@@ -160,13 +207,7 @@ vector<particle> Localization::resampling(vector<particle> M)
 
     return new_m;
 }
-void Localization::updatePos()
-{
 
-
-
-    //resampling();
-}
 
 bool Localization::checkCoordinates(double x, double y)
 {
