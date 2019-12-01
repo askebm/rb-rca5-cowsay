@@ -39,8 +39,8 @@ public:
     vector<rays> rayCasting(double x,  double y, double betaa);
     double drawLines(double x, double x1, double y, double y1);
     double calDistance(vector<double> x, vector<double> y);
-    void updateLidar(ConstLaserScanStampedPtr &msg);
-    void updatePose(ConstPosesStampedPtr &_msg);
+    void updateLidar(int nr, float angle_mi, double angle_ma, float angle_i, float range_m,  vector<float> ranges);
+    void updatePose(vector<double> x, vector<double> y, vector<double> beta);
     void updateSpeed(double speed, double dir);
     double vel;
     double angle_vel;
@@ -50,12 +50,12 @@ public:
     vector<double> range;
     vector<double> angle;
 private:
-    float angle_min = -2.26889;
-    double angle_max = 2.26889;
-    float angle_increment = 0.022803;
+    float angle_min;
+    double angle_max;
+    float angle_increment;
     float range_min;
-    float range_max = 10;
-    int nranges = 200;
+    float range_max;
+    int nranges;
     int nintensities;
     Mat map = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png", CV_LOAD_IMAGE_GRAYSCALE);
 

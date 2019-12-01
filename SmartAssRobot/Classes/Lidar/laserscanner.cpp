@@ -5,41 +5,32 @@ Laserscanner::Laserscanner()
 
 }
 
-void Laserscanner::updateLidar(ConstLaserScanStampedPtr &msg)
+void Laserscanner::updateLidar(int nr, float angle_mi, double angle_ma, float angle_i, float range_m, vector<float> ranges)
 {
     range.clear();
     angle.clear();
-    angle_min = float(msg->scan().angle_min());
-    angle_max = float(msg->scan().angle_max());
-    angle_increment = float(msg->scan().angle_step());
-
-    range_min = float(msg->scan().range_min());
-    range_max = float(msg->scan().range_max());
-
-    nranges = msg->scan().ranges_size();
-    nintensities = msg->scan().intensities_size();
+    angle_min = angle_mi;
+    angle_max =  angle_ma;
+    angle_increment = angle_i;
+    range_max = range_m;
+    nranges = nr;
 
     for(int i = 0; i < nranges; i++)
     {
         angle.push_back(angle_min + i * angle_increment);
-        range.push_back(std::min(float(msg->scan().ranges(i)), range_max));
+        range.push_back(std::min((float)ranges[i], range_max));
+        //cout << range[i] << endl;
     }
 }
-void Laserscanner::updatePose(ConstPosesStampedPtr &_msg)
+void Laserscanner::updatePose(vector<double> x, vector<double> y, vector<double> beta)
 {
-    int pose_number = _msg->pose_size() -1;
-    robot_x = _msg->pose(pose_number).position().x();
-    robot_y = _msg->pose(pose_number).position().y() ;
-    robot_angle = _msg->pose(pose_number).orientation().z();
-}
 
+    robot_x = x.back();
+    robot_y = y.back();
+    robot_angle = beta.back();
+}
 void Laserscanner::updateSpeed(double speed, double dir)
 {
-    for(int i = 0; i < nranges; i++)
-    {
-        range.push_back(60);
-        angle.push_back(2);
-    }
 
     vel = speed;
     angle_vel = dir;
