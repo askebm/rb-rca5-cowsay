@@ -33,8 +33,8 @@ public:
     void init(Laserscanner *ls);
     void prediction(Laserscanner *sh);
     void updatePos(Laserscanner *lsa);
-    vector<particle> resampling(vector<particle> M);
-    bool checkCoordinates(double x, double y);
+    vector<particle> resampling();
+
     // variables
     vector<particle> samples = {};
 
@@ -45,6 +45,9 @@ private:
     time_t timer;
     double current_time;
     bool first_flag;
+    const double pi = boost::math::constants::pi<double>();
+
+    bool checkCoordinates(double x, double y);
 
 
 };

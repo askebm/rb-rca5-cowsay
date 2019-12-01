@@ -36,7 +36,7 @@ class Laserscanner
 public:
     Laserscanner();
     bool hasUpdated(bool flag);
-    vector<rays> rayCasting(double x,  double y, double direction, double betaa);
+    vector<rays> rayCasting(double x,  double y, double betaa);
     double drawLines(double x, double x1, double y, double y1);
     double calDistance(vector<double> x, vector<double> y);
     void updateLidar(ConstLaserScanStampedPtr &msg);
