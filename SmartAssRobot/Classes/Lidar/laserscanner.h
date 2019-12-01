@@ -44,9 +44,9 @@ public:
     void updateSpeed(double speed, double dir);
     double vel;
     double angle_vel;
-    double robot_angle = 0;
-    double robot_x = 40;
-    double robot_y = 60;
+    double robot_angle;
+    double robot_x;
+    double robot_y;
     vector<double> range;
     vector<double> angle;
 private:

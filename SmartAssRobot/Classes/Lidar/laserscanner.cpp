@@ -19,12 +19,10 @@ void Laserscanner::updateLidar(int nr, float angle_mi, double angle_ma, float an
     {
         angle.push_back(angle_min + i * angle_increment);
         range.push_back(std::min((float)ranges[i], range_max));
-        //cout << range[i] << endl;
     }
 }
 void Laserscanner::updatePose(vector<double> x, vector<double> y, vector<double> beta)
 {
-
     robot_x = x.back();
     robot_y = y.back();
     robot_angle = beta.back();

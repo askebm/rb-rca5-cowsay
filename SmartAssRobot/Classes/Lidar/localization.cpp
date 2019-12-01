@@ -44,7 +44,6 @@ void Localization::init(Laserscanner *ls)
     first_flag = true;
 
     particle p;
-
     for(int i = 0; i < N; i++)
     {
         //gives all starting particles a random starting point in a 5x5 cube
@@ -147,6 +146,7 @@ void Localization::updatePos(Laserscanner *lsa)
         ray.distance = lsa->range[i];
         ray.dir = lsa->angle[i];
         robot_rays.push_back(ray);
+
     }
     vector<rays> temp;
     //get rays for samples
@@ -162,27 +162,25 @@ void Localization::updatePos(Laserscanner *lsa)
     const double extra = 1/(sigma*sqrt(2*pi));
     for(int i = 0; i < N; i++) // samples size
     {
-        double likelihood = 0.0;
+        double likelihood = 1.0;
         for(int j = 0; j < N; j++) //nranges size - FIX
         {
             likelihood = likelihood + extra *exp(-(pow(samples[i].ray[j].distance-robot_rays[i].distance,2))/(2*pow(sigma,2)));
-           //cout << exp(-(pow(samples[i].ray[j].distance-robot_rays[i].distance,2))/(2*pow(sigma,2))) << endl;
         }
         //save the likelihood for the particle
         samples[i].likelihood = likelihood;
-
+        //cout << likelihood << endl;
         //cal new weight based on the likelihood of the particles rays.
         temp_weight.push_back(samples[i].weight * samples[i].likelihood);
 
-
         // get the sum of all weights for normalizing.
-        norm_const =+ temp_weight[i];
+        norm_const = norm_const + temp_weight[i];
     }
     //normalize new weight of particles
     for(int i = 0; i < N; i++)
     {
         samples[i].weight = temp_weight[i]/norm_const;
-        cout << samples[i].weight << endl;
+        //cout << samples[i].weight << endl;
     }
 
     //resampling();
@@ -216,22 +214,22 @@ vector<particle> Localization::resampling()
     return new_m;
 }
 
-
+//needs fixing - as the middle of the picture is starting point 0,0 for robot.
 bool Localization::checkCoordinates(double x, double y)
 {
-    Mat map = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png", CV_LOAD_IMAGE_GRAYSCALE);
-    double rows = map.rows;
-    double cols = map.cols;
+//    Mat map = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png", CV_LOAD_IMAGE_GRAYSCALE);
+//    double rows = map.rows;
+//    double cols = map.cols;
 
-    if(x > rows -1 || x < 0)
-    {
-        return false;
-    }
-    if(y > cols - 1 || y < 0)
-    {
-        return false;
-    }
-    else
+//    if(x > rows -1 || x < 0)
+//    {
+//        return false;
+//    }
+//    if(y > cols - 1 || y < 0)
+//    {
+//        return false;
+//    }
+//    else
         return true;
 
 }

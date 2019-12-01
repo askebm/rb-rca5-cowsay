@@ -13,29 +13,33 @@ static boost::mutex mutex_l;
 
 void statCallback(ConstWorldStatisticsPtr &_msg) {
 (void)_msg;
-    // Dump the message contents to stdout.
-    //  std::cout << _msg->DebugString();
-    //  std::cout << std::flush;
 }
 
 void poseCallback(ConstPosesStampedPtr &_msg)
 {
-    // Dump the message contents to stdout.
-    //  std::cout << _msg->DebugString();
-
+    vector<double> robot_x;
+    vector<double> robot_y;
+    vector<double> robot_beta;
     for (int i = 0; i < _msg->pose_size(); i++)
     {
         if (_msg->pose(i).name() == "pioneer2dx")
         {
-          /*std::cout << std::setprecision(2) << std::fixed << std::setw(6)
-                    << _msg->pose(i).position().x() << std::setw(6)
-                    << _msg->pose(i).position().y() << std::setw(6)
-                    << _msg->pose(i).position().z() << std::setw(6)
-                    << _msg->pose(i).orientation().w() << std::setw(6)
-                    << _msg->pose(i).orientation().x() << std::setw(6)
-                    << _msg->pose(i).orientation().y() << std::setw(6)
-                    << _msg->pose(i).orientation().z() << std::endl;*/
-        }
+            robot_x.push_back(_msg->pose(i).position().x());
+            robot_y.push_back(_msg->pose(i).position().y());
+            robot_beta.push_back(_msg->pose(i).orientation().z());
+            mutex_l.lock();
+            s.updatePose(robot_x, robot_y, robot_beta);
+            mutex_l.unlock();
+//          std::cout << std::setprecision(2) << std::fixed << std::setw(6)
+//                    << _msg->pose(i).position().x() << std::setw(6)
+//                    << _msg->pose(i).position().y() << std::setw(6)
+//                    << _msg->pose(i).position().z() << std::setw(6)
+//                    << _msg->pose(i).orientation().w() << std::setw(6)
+//                    << _msg->pose(i).orientation().x() << std::setw(6)
+//                    << _msg->pose(i).orientation().y() << std::setw(6)
+//                    << _msg->pose(i).orientation().z() << std::endl;
+            //cout << "I was here" << endl;
+       }
     }
 }
 
@@ -56,12 +60,11 @@ void cameraCallback(ConstImageStampedPtr &msg)
 
 void lidarCallback(ConstLaserScanStampedPtr &msg)
 {
-    //  std::cout << ">> " << msg->DebugString() << std::endl;
-    float angle_min = float(msg->scan().angle_min());
-    //double angle_max = float(msg->scan().angle_max());
-    float angle_increment = float(msg->scan().angle_step());
+    vector<float> ranges;
 
-    //cout << angle_min << " " << angle_increment << endl;
+    float angle_min = float(msg->scan().angle_min());
+    double angle_max = float(msg->scan().angle_max());
+    float angle_increment = float(msg->scan().angle_step());
 
     float range_min = float(msg->scan().range_min());
     float range_max = float(msg->scan().range_max());
@@ -87,6 +90,7 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
     {
         float angle = angle_min + i * angle_increment;
         float range = std::min(float(msg->scan().ranges(i)), range_max);
+        ranges.push_back(range);
         //    double intensity = msg->scan().intensities(i);
         cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
                             200.5f - range_min * px_per_m * std::sin(angle));
@@ -102,10 +106,12 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
               cv::Scalar(255, 0, 0));
 
     mutex_l.lock();
+    s.updateLidar(nranges, angle_min, angle_max, angle_increment, range_max, ranges);
     cv::imshow("lidar", im);
     mutex_l.unlock();
 }
-int main(int _argc, char **_argv) {
+int main(int _argc, char **_argv)
+{
 
     // Load gazebo
     gazebo::client::setup(_argc, _argv);
