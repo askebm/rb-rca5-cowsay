@@ -7,6 +7,8 @@ Laserscanner::Laserscanner()
 
 void Laserscanner::updateLidar(ConstLaserScanStampedPtr &msg)
 {
+    range.clear();
+    angle.clear();
     angle_min = float(msg->scan().angle_min());
     angle_max = float(msg->scan().angle_max());
     angle_increment = float(msg->scan().angle_step());
@@ -16,6 +18,15 @@ void Laserscanner::updateLidar(ConstLaserScanStampedPtr &msg)
 
     nranges = msg->scan().ranges_size();
     nintensities = msg->scan().intensities_size();
+
+    for(int i = 0; i < nranges; i++)
+    {
+        angle.push_back(angle_min + i * angle_increment);
+        range.push_back(std::min((double)float(msg->scan().ranges(i)), range_max));
+        //float angle = angle_min + i * angle_increment;
+        //float range = std::min(float(lsa->msg->scan().ranges(i)), range_max);
+
+    }
 
 }
 void Laserscanner::updatePose(ConstPosesStampedPtr &_msg)
@@ -39,12 +50,12 @@ bool Laserscanner::hasUpdated(bool flag)
     {
         return false;
     }
+    flag = false;
     return true;
 }
 
 vector<rays> Laserscanner::rayCasting(double x, double y, double direction, double betaa)
 {
-
     double offset_angle = betaa;
     vector<rays> new_rays;
     struct rays new_r;

@@ -47,6 +47,8 @@ public:
     double robot_angle = 0;
     double robot_x = 40;
     double robot_y = 60;
+    vector<double> range;
+    vector<double> angle;
 private:
     float angle_min = -2.26889;
     double angle_max = 2.26889;
