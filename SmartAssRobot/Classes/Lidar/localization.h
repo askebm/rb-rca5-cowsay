@@ -6,7 +6,6 @@
 using namespace std;
 using namespace cv;
 
-
 class particle
 {
 public:
@@ -27,25 +26,23 @@ public:
 class Localization
 {
 public:
-    Localization(int sample_size, Mat m);
+    Localization(int sample_size, Laserscanner *ls);
     ~Localization();
-    void init();
-    void prediction(Laserscanner s);
+    void init(Laserscanner *ls);
+    void prediction(Laserscanner *sh);
     void updatePos();
     vector<particle> resampling(vector<particle> M);
     bool checkCoordinates(double x, double y);
     // variables
-    vector<particle> samples;
+    vector<particle> samples = {};
 
 private:
-    //float ray(Mat* map, Point2f p, float angle);
     float _range_max;
     int N; // Number of particles.
     boost::mt19937 gen; // random number generator
     time_t timer;
     double current_time;
     bool first_flag;
-    Mat map;
 
 
 };

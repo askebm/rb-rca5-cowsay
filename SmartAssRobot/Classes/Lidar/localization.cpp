@@ -26,35 +26,54 @@ void particle::updateState(double x_n, double y_n, double beta_n, double time)
     x = x_n;
     y = y_n;
     beta = beta_n;
+
 }
 
-Localization::Localization(int sample_size, Mat m)
+Localization::Localization(int sample_size, Laserscanner *ls)
 {
     N = sample_size;
-    map = m;
-    init();
+    init(ls);
 }
 
 Localization::~Localization(){}
 
-void Localization::init()
+void Localization::init(Laserscanner *ls)
 {
+    uniform_real_distribution<double> vel_variance(-2.5, 2.5);
+    uniform_real_distribution<double> angle_variance(-2.89, 2.89);
     first_flag = true;
+
+    particle p;
 
     for(int i = 0; i < N; i++)
     {
-
+        //gives all starting particles a random starting point in a 5x5 cube
+        double start_x = ls->robot_x + vel_variance(gen);
+        double start_y = ls->robot_y + vel_variance(gen);
+        double start_beta = ls->robot_angle + angle_variance(gen);
+        current_time = time(&timer);
+        p.last_time = current_time;
+        p.x = start_x;
+        p.y = start_y;
+        p.beta = start_beta;
+        if(checkCoordinates(start_x, start_y))
+        {
+           //update the predicted values and last time.
+           samples.push_back(p);
+        }
+        else
+            samples[i] = {};
     }
-    Laserscanner s;
-    prediction(s);
+    prediction(ls);
 
 }
-void Localization::prediction(Laserscanner s)
+void Localization::prediction(Laserscanner *sh)
 {
     boost::random::normal_distribution<double> error_vel(0, 0.2);
     boost::random::normal_distribution<double> error_angle(0, 0.2);
-    bool updated = s.hasUpdated(updated);
+    bool updated = true;//sh->hasUpdated(updated);
 
+    cout << "i am here before the for loop in init" << endl;
     if(updated)
     {
         if(first_flag)
@@ -70,15 +89,16 @@ void Localization::prediction(Laserscanner s)
                 double current_beta = samples[i].getBeta();
 
                 // new predicted values for all particles based on their previous position
-                double new_beta = s.angle + error_angle(gen);
-                double new_x = current_x + (s.vel + error_vel(gen))*sample_time*cos(current_beta);
-                double new_y = current_y + (s.vel + error_vel(gen))*sample_time*sin(current_beta);
+                double new_beta = current_beta + (sh->angle_vel + error_angle(gen))*sample_time;
+                double new_x = current_x + (sh->vel + error_vel(gen))*sample_time*cos(current_beta);
+                double new_y = current_y + (sh->vel + error_vel(gen))*sample_time*sin(current_beta);
 
                 // check if the particles generated coordinates are inside the map
                 if(checkCoordinates(new_x, new_y))
                 {
                    //update the predicted values and last time.
                    samples[i].updateState(new_x, new_y, new_beta, current_time);
+                   cout << samples[i].x << " " << samples[i].getY() << " " << samples[i].beta << endl;
                 }
             }
         }
@@ -95,9 +115,9 @@ void Localization::prediction(Laserscanner s)
                 double current_beta = samples[i].getBeta();
 
                 // new predicted values for all particles based on their previous position
-                double new_beta = s.angle + error_angle(gen);
-                double new_x = current_x + (s.vel + error_vel(gen))*sample_time*cos(current_beta);
-                double new_y = current_y + (s.vel + error_vel(gen))*sample_time*sin(current_beta);
+                double new_beta = current_beta + (sh->angle_vel + error_angle(gen))*sample_time;
+                double new_x = current_x + (sh->vel + error_vel(gen))*sample_time*cos(current_beta);
+                double new_y = current_y + (sh->vel + error_vel(gen))*sample_time*sin(current_beta);
 
                 // check if the particles generated coordinates are inside the map
                 if(checkCoordinates(new_x, new_y))
@@ -105,14 +125,13 @@ void Localization::prediction(Laserscanner s)
                    //update the predicted values and last time.
                    samples[i].updateState(new_x, new_y, new_beta, current_time);
                 }
-
             }
         }
+        updated = false;
     }
-
-    updatePos();
-
-
+    else
+        prediction(sh);
+   // updatePos();
 }
 vector<particle> Localization::resampling(vector<particle> M)
 {
@@ -141,7 +160,6 @@ vector<particle> Localization::resampling(vector<particle> M)
 
     return new_m;
 }
-
 void Localization::updatePos()
 {
 
@@ -152,8 +170,10 @@ void Localization::updatePos()
 
 bool Localization::checkCoordinates(double x, double y)
 {
+    Mat map = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png", CV_LOAD_IMAGE_GRAYSCALE);
     double rows = map.rows;
     double cols = map.cols;
+
     if(x > rows -1 || x < 0)
     {
         return false;
@@ -166,12 +186,4 @@ bool Localization::checkCoordinates(double x, double y)
         return true;
 
 }
-//float Localization::ray(Mat* map, Point2f p, float angle){
-//    Point2f delta(cos(angle),sin(angle));
-//    float scale = (72. / 25.4) * 2;
-//    for(float r = 0; r < _range_max * scale; r+=2){
-//        if(map->at<uchar>(p+r*delta) == 0)
-//            return r / scale;
-//    }
-//    return _range_max;
-//}
+

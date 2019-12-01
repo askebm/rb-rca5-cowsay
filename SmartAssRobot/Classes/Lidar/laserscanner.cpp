@@ -5,7 +5,7 @@ Laserscanner::Laserscanner()
 
 }
 
-void Laserscanner::update(ConstLaserScanStampedPtr &msg)
+void Laserscanner::updateLidar(ConstLaserScanStampedPtr &msg)
 {
     angle_min = float(msg->scan().angle_min());
     angle_max = float(msg->scan().angle_max());
@@ -17,18 +17,29 @@ void Laserscanner::update(ConstLaserScanStampedPtr &msg)
     nranges = msg->scan().ranges_size();
     nintensities = msg->scan().intensities_size();
 
-    //cout << "I was here!" << endl;
-    vel = 1;
+}
+void Laserscanner::updatePose(ConstPosesStampedPtr &_msg)
+{
+    int pose_number = _msg->pose_size() -1;
+    robot_x = _msg->pose(pose_number).position().x();
+    robot_y = _msg->pose(pose_number).position().y() ;
+    robot_angle = _msg->pose(pose_number).orientation().z();
+}
+
+void Laserscanner::updateSpeed(double speed, double dir)
+{
+    vel = speed;
+    angle_vel = dir;
+    bool flag = true;
+    hasUpdated(flag);
 }
 bool Laserscanner::hasUpdated(bool flag)
 {
-
     while(!flag)
     {
-
+        return false;
     }
     return true;
-
 }
 
 vector<rays> Laserscanner::rayCasting(double x, double y, double direction, double betaa)
@@ -173,9 +184,6 @@ double Laserscanner::drawLines(double x0, double x1, double y0, double y1)
 }
 double Laserscanner::calDistance(vector<double> x, vector<double> y)
 {
-//    int midt_x = map.rows/2;
-//    int midt_y = map.cols/2;
-//    cout << midt_x << " " << midt_y << endl;
     double distance;
     int tmp = 0;
     for(int i = 0; i < x.size(); i++)
@@ -187,7 +195,6 @@ double Laserscanner::calDistance(vector<double> x, vector<double> y)
         else
             break;
     }
-
 
     distance = sqrt(pow(abs(x[0]-x[tmp]),2) + pow(abs(y[0]-y[tmp]),2));
     return distance;
