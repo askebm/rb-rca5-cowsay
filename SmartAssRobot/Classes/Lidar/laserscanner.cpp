@@ -62,7 +62,9 @@ vector<rays> Laserscanner::rayCasting(double x, double y, double betaa)
         new_r.distance = drawLines(x,x1,y,y1);
         new_r.dir = angle;
         new_rays[i] = new_r;
+
     }
+
     return new_rays;
 }
 
@@ -124,7 +126,6 @@ double Laserscanner::drawLines(double x0, double x1, double y0, double y1)
                 y.push_back(temp_y);
                 i++;
             }
-
         }
     }
     else
@@ -198,6 +199,6 @@ double Laserscanner::calDistance(vector<double> x, vector<double> y)
             break;
     }
 
-    distance = sqrt(pow(abs(x[0]-x[tmp]),2) + pow(abs(y[0]-y[tmp]),2));
+    distance = sqrt(pow(abs(x[0]-x[tmp]),2) + pow(abs(y[0]-y[tmp]),2))*0.07;
     return distance;
 }

@@ -6,6 +6,8 @@
 using namespace std;
 using namespace cv;
 
+static boost::mutex mutex_k;
+
 class particle
 {
 public:
@@ -28,12 +30,14 @@ public:
 class Localization
 {
 public:
-    Localization(int sample_size, Laserscanner *ls);
+    Localization(int sample_size, Laserscanner ls);
     ~Localization();
-    void init(Laserscanner *ls);
-    void prediction(Laserscanner *sh);
-    void updatePos(Laserscanner *lsa);
-    vector<particle> resampling();
+    void init(Laserscanner ls);
+    void prediction(Laserscanner sh);
+    void updatePos(Laserscanner lsa);
+    void resampling();
+    void updateMap();
+
 
     // variables
     vector<particle> samples = {};
@@ -44,10 +48,13 @@ private:
     boost::mt19937 gen; // random number generator
     time_t timer;
     double current_time;
-    bool first_flag;
+    bool first_flag = true;
     const double pi = boost::math::constants::pi<double>();
-
+    bool updated = true;
     bool checkCoordinates(double x, double y);
+    Mat map = imread("/home/annie/git_repo/rb-rca5-cowsay/floor_plan.png");
+    double r_x;
+    double r_y;
 
 
 };

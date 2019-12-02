@@ -158,7 +158,7 @@ int main(int _argc, char **_argv)
     float dir = 0.0;
      s.updateSpeed(speed, dir);
 
-    Localization l(200, &s);
+    Localization l(200, s);
 
 
 
@@ -196,6 +196,7 @@ int main(int _argc, char **_argv)
             //      dir *= 0.1;
           }
           s.updateSpeed(speed, dir);
+          l.prediction(s);
 
           //Generate a pose
           ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));
@@ -204,8 +205,6 @@ int main(int _argc, char **_argv)
           gazebo::msgs::Pose msg;
           gazebo::msgs::Set(&msg, pose);
           movementPublisher->Publish(msg);
-
-
 
       }
 

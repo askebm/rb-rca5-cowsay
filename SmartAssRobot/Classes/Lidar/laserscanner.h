@@ -29,7 +29,6 @@ struct rays
 {
       double distance;
       double dir;
-
 };
 class Laserscanner
 {

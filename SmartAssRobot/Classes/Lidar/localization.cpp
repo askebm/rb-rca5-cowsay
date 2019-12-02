@@ -29,7 +29,7 @@ void particle::updateState(double x_n, double y_n, double beta_n, double time)
 
 }
 
-Localization::Localization(int sample_size, Laserscanner *ls)
+Localization::Localization(int sample_size, Laserscanner ls)
 {
     N = sample_size;
     init(ls);
@@ -37,7 +37,7 @@ Localization::Localization(int sample_size, Laserscanner *ls)
 
 Localization::~Localization(){}
 
-void Localization::init(Laserscanner *ls)
+void Localization::init(Laserscanner ls)
 {
     uniform_real_distribution<double> vel_variance(-2.5, 2.5);
     uniform_real_distribution<double> angle_variance(-2.89, 2.89);
@@ -46,10 +46,12 @@ void Localization::init(Laserscanner *ls)
     particle p;
     for(int i = 0; i < N; i++)
     {
+        r_x = ls.robot_x;
+        r_y = ls.robot_y;
         //gives all starting particles a random starting point in a 5x5 cube
-        double start_x = ls->robot_x + vel_variance(gen);
-        double start_y = ls->robot_y + vel_variance(gen);
-        double start_beta = ls->robot_angle + angle_variance(gen);
+        double start_x = ls.robot_x + vel_variance(gen);
+        double start_y = ls.robot_y + vel_variance(gen);
+        double start_beta = ls.robot_angle + angle_variance(gen);
         current_time = time(&timer);
         p.last_time = current_time;
         p.x = start_x;
@@ -65,16 +67,16 @@ void Localization::init(Laserscanner *ls)
         else
             samples[i] = {};
     }
+    cout << "I made to through init" << endl;
     updatePos(ls);
-
 }
-void Localization::prediction(Laserscanner *sh)
+void Localization::prediction(Laserscanner sh)
 {
     boost::random::normal_distribution<double> error_vel(0, 0.2);
     boost::random::normal_distribution<double> error_angle(0, 0.2);
-    bool updated = sh->hasUpdated(updated);
+    //updated = sh.hasUpdated(updated);
 
-    cout << "i am here before the for loop in init" << endl;
+    cout << "I made it to prediction" << endl;
     if(updated)
     {
         if(first_flag)
@@ -90,16 +92,16 @@ void Localization::prediction(Laserscanner *sh)
                 double current_beta = samples[i].getBeta();
 
                 // new predicted values for all particles based on their previous position
-                double new_beta = current_beta + (sh->angle_vel + error_angle(gen))*sample_time;
-                double new_x = current_x + (sh->vel + error_vel(gen))*sample_time*cos(current_beta);
-                double new_y = current_y + (sh->vel + error_vel(gen))*sample_time*sin(current_beta);
+                double new_beta = current_beta + (sh.angle_vel + error_angle(gen))*sample_time;
+                double new_x = current_x + (sh.vel + error_vel(gen))*sample_time*cos(current_beta);
+                double new_y = current_y + (sh.vel + error_vel(gen))*sample_time*sin(current_beta);
 
                 // check if the particles generated coordinates are inside the map
                 if(checkCoordinates(new_x, new_y))
                 {
                    //update the predicted values and last time.
                    samples[i].updateState(new_x, new_y, new_beta, current_time);
-                   cout << samples[i].x << " " << samples[i].getY() << " " << samples[i].beta << endl;
+                  // cout << samples[i].x << " " << samples[i].getY() << " " << samples[i].beta << endl;
                 }
             }
         }
@@ -116,104 +118,137 @@ void Localization::prediction(Laserscanner *sh)
                 double current_beta = samples[i].getBeta();
 
                 // new predicted values for all particles based on their previous position
-                double new_beta = current_beta + (sh->angle_vel + error_angle(gen))*sample_time;
-                double new_x = current_x + (sh->vel + error_vel(gen))*sample_time*cos(current_beta);
-                double new_y = current_y + (sh->vel + error_vel(gen))*sample_time*sin(current_beta);
+                double new_beta = current_beta + (sh.angle_vel + error_angle(gen))*sample_time;
+                double new_x = current_x + (sh.vel + error_vel(gen))*sample_time*cos(current_beta);
+                double new_y = current_y + (sh.vel + error_vel(gen))*sample_time*sin(current_beta);
 
                 // check if the particles generated coordinates are inside the map
                 if(checkCoordinates(new_x, new_y))
                 {
                    //update the predicted values and last time.
                    samples[i].updateState(new_x, new_y, new_beta, current_time);
+                  // cout << samples[i].x << " " << samples[i].getY() << " " << samples[i].beta << endl;
                 }
             }
         }
-        updated = false;
     }
     else
         prediction(sh);
 
     updatePos(sh);
 }
-void Localization::updatePos(Laserscanner *lsa)
+void Localization::updatePos(Laserscanner lsa)
 {
-    double sigma = 2.0;
-    //get the rays for robot;
-    vector<rays> robot_rays;
-    rays ray;
-    for(int i = 0; i < N; i++)
+    cout << "I made it to updatePOs" << endl;
+    if(updated)
     {
-        ray.distance = lsa->range[i];
-        ray.dir = lsa->angle[i];
-        robot_rays.push_back(ray);
-
-    }
-    vector<rays> temp;
-    //get rays for samples
-    for(int i = 0; i < N; i++)
-    {
-        temp = lsa->rayCasting(samples[i].getX(),samples[i].getY(), samples[i].getBeta());
-        samples[i].ray = temp;
-    }
-    //calculate the likelihood for a particle is around the robot for all particles.
-
-    double norm_const = 0.0;
-    vector<double> temp_weight;
-    const double extra = 1/(sigma*sqrt(2*pi));
-    for(int i = 0; i < N; i++) // samples size
-    {
-        double likelihood = 1.0;
-        for(int j = 0; j < N; j++) //nranges size - FIX
+        double sigma = 2.0;
+        //get the rays for robot;
+        vector<rays> robot_rays;
+        rays ray;
+        for(int i = 0; i < N; i++)
         {
-            likelihood = likelihood + extra *exp(-(pow(samples[i].ray[j].distance-robot_rays[i].distance,2))/(2*pow(sigma,2)));
+            ray.distance = lsa.range[i];
+            ray.dir = lsa.angle[i];
+            robot_rays.push_back(ray);
+
         }
-        //save the likelihood for the particle
-        samples[i].likelihood = likelihood;
-        //cout << likelihood << endl;
-        //cal new weight based on the likelihood of the particles rays.
-        temp_weight.push_back(samples[i].weight * samples[i].likelihood);
+        vector<rays> temp;
+        //get rays for samples
+        for(int i = 0; i < N; i++)
+        {
+            temp = lsa.rayCasting(samples[i].getX(),samples[i].getY(), samples[i].getBeta());
+            samples[i].ray = temp;
+        }
+        //calculate the likelihood for a particle is around the robot for all particles.
 
-        // get the sum of all weights for normalizing.
-        norm_const = norm_const + temp_weight[i];
+        double norm_const = 0.0;
+        vector<double> temp_weight;
+        const double extra = 1/(sigma*sqrt(2*pi));
+        double sum = 0;
+        for(int i = 0; i < N; i++) // samples size
+        {
+            double likelihood = 1.0;
+            for(int j = 0; j < N; j++) //nranges size - FIX
+            {
+                likelihood = likelihood * extra *exp(-(pow(samples[i].ray[j].distance-robot_rays[i].distance,2))/(2*pow(sigma,2)));
+            }
+            //save the likelihood for the particle
+            samples[i].likelihood = likelihood;
+            //cal new weight based on the likelihood of the particles rays.
+            temp_weight.push_back(samples[i].weight * samples[i].likelihood);
+
+
+            // get the sum of all weights for normalizing.
+            norm_const = norm_const + temp_weight[i];
+        }
+        //normalize new weight of particles
+        for(int i = 0; i < N; i++)
+        {
+            samples[i].weight = temp_weight[i]/norm_const;
+            sum= sum + samples[i].weight;
+           // cout << samples[i].weight << endl;
+
+        }
+        //cout << sum << endl;
+        resampling();
     }
-    //normalize new weight of particles
-    for(int i = 0; i < N; i++)
-    {
-        samples[i].weight = temp_weight[i]/norm_const;
-        //cout << samples[i].weight << endl;
-    }
-
-    //resampling();
-
+    else
+        updatePos(lsa);
 }
-vector<particle> Localization::resampling()
+void Localization::resampling()
 {
     vector<particle> new_m;
-    boost::random::normal_distribution<> delta(0, N-1);
-//    double c = M[0].weight;
-//    int i = 0;
-//    double u;
-//    int sum;
-//    for(int j = 0; j < N; j++)
-//    {
-//        u = delta(gen) + j*pow(N,-1);
-//        while(u > c)
-//        {
-//            i =+ 1;
-//            c =+ M[i].weight;
-//        }
-//        if(i > N)
-//            i = 0;
+    double rand = 1.0/double(N);
+    double c = samples[0].weight;
+    uniform_real_distribution<double> delta(0, rand);
+    double delta_i = delta(gen);
+    int i = 0;
+    for(int j = 0; j < N; j++)
+    {
+        double u = delta_i + j*rand;
+        while (u > c)
+        {
+            i++;
+            c = c + samples[i].weight;
+        }
+        particle new_particle = samples[i];
+        new_particle.weight = 1.0/N;
+        new_m.push_back(new_particle);
+    }
+    samples = new_m;
+    new_m.clear();
 
-
-//        sum =+ c;
-
-
-//    }
-
-    return new_m;
+    updateMap();
 }
 
+void Localization::updateMap()
+{
+    Mat new_draw = map.clone();
+
+    Vec3b colour = new_draw.at<Vec3b>(100,100);
+    colour[0] = 255;
+    colour[1] = 0;
+    colour[2] = 0;
+
+    for(int i  = 0; i < N; i++)
+    {
+        int x = (samples[i].x + 42)/0.07;
+        int y = (samples[i].y + 20)/0.07;
+
+        circle(new_draw, Point((int)x,(int)y), 3, Vec3b(255,0,0), 1);
+    }
+    double x = (r_x + 42)/0.07;
+    double y = ((-1) * r_y + 28)/0.07;
+
+    circle(new_draw, Point((int)x,(int)y), 3, Vec3b(0,0,255), 1);
+
+    mutex_k.lock();
+    cv::namedWindow("new_draw");
+    cv::imshow("new_draw", new_draw);
+    mutex_k.unlock();
+
+}
 //needs fixing - as the middle of the picture is starting point 0,0 for robot.
 bool Localization::checkCoordinates(double x, double y)
 {
