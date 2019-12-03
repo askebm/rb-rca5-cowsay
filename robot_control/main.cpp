@@ -22,6 +22,7 @@ void poseCallback(ConstPosesStampedPtr &_msg) {
   for (int i = 0; i < _msg->pose_size(); i++) {
     if (_msg->pose(i).name() == "pioneer2dx") {
 
+/*
       std::cout << std::setprecision(2) << std::fixed << std::setw(6)
                 << _msg->pose(i).position().x() << std::setw(6)
                 << _msg->pose(i).position().y() << std::setw(6)
@@ -30,6 +31,7 @@ void poseCallback(ConstPosesStampedPtr &_msg) {
                 << _msg->pose(i).orientation().x() << std::setw(6)
                 << _msg->pose(i).orientation().y() << std::setw(6)
                 << _msg->pose(i).orientation().z() << std::endl;
+								*/
     }
   }
 }
@@ -41,7 +43,7 @@ void cameraCallback(ConstImageStampedPtr &msg) {
   const char *data = msg->image().data().c_str();
   cv::Mat im(int(height), int(width), CV_8UC3, const_cast<char *>(data));
 
-  im = im.clone();
+  //im = im.clone();
   cv::cvtColor(im, im, cv::COLOR_RGB2BGR);
 
   mutex.lock();
@@ -134,6 +136,7 @@ int main(int _argc, char **_argv) {
   const int key_down = 84;
   const int key_right = 83;
   const int key_esc = 27;
+	const int key_space = 32;
 
   float speed = 0.0;
   float dir = 0.0;
@@ -145,6 +148,7 @@ int main(int _argc, char **_argv) {
     mutex.lock();
     int key = cv::waitKey(1);
     mutex.unlock();
+		std::cout << key << std::endl;
 
     if (key == key_esc)
       break;
@@ -157,6 +161,10 @@ int main(int _argc, char **_argv) {
       dir += 0.05;
     else if ((key == key_left) && (dir >= -0.4f))
       dir -= 0.05;
+		else if (key == key_space) {
+			speed = 0.0;
+			dir = 0.0;
+		}
     else {
       // slow down
       //      speed *= 0.1;
