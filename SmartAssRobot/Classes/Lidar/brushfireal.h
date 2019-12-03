@@ -10,6 +10,7 @@
 #include <gazebo/msgs/msgs.hh>
 #include <gazebo/transport/transport.hh>
 
+
 #include <array>
 #include <vector>
 
@@ -22,6 +23,12 @@ struct Point1
     int y;
 };
 
+struct Neighbour
+{
+        int equal;
+        int higher;
+};
+
 class BrushfireAl
 {
 private:
@@ -30,31 +37,19 @@ private:
     Mat grey_scale;
     void findNodes(); //just a debugging algo
     void addNodes(vector<int> x);
-    void nodeVector(); //support algo.
+    void nodeVector(); //support function - to test Dijstra's ability to find hardcodded nodes
     Mat colour_img;
     vector<Point1> important_nodes = {};
     int start_x;
     int start_y;
     int findWay();
     vector<vector<int>> matrix_real;
+    bool checkGradient(int x, int y);
+    void check_neighbours(vector<Neighbour> &neighbours, int row, int col, int which_type);
 public:
     BrushfireAl();
     void brushfire();
+
 };
 
 #endif // BRUSHFIREAL_H
-
-//(100,100) -room 1
-//(200,200) room 2 - potential but room 1 only has acces through room 2,
-//(400,175) room 3 - beed to go through here for 4 and 7.
-//(600,100) room 4 - needs to go through room 3 to get there.
-//(900,100) room 5 - part of the long hallway
-//(1100,100) room 6 - last room at the top end
-//(650,250) room 7 - under room 4.
-//(100,600) room 8 - room that is technically a hallway
-//(300,600) room 9 - quite big room
-//(600,550) room 10 - the top room of the two at the bottom.
-//(1050,600) room 11 - big room that is part of the hallway
-//(550,700) room  12 - first of the two small rooms.
-//(750,700) room 13 - beside room 12. needs to go through this to get to room 12.
-

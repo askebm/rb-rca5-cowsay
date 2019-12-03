@@ -3,7 +3,7 @@
 static boost::mutex mutex_b;
 
 BrushfireAl::BrushfireAl()
-{  
+{
     Mat image = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png", CV_LOAD_IMAGE_GRAYSCALE);
     mutex_b.lock();
     grey_scale = image.clone();
@@ -17,7 +17,7 @@ BrushfireAl::BrushfireAl()
     start_y = binary_image.cols/2;
     brushfire();
 
-
+    imwrite( "/home/annie/brushfire_1.png", grey_scale );
     mutex_b.lock();
     cv::namedWindow("Image_o");
     cv::imshow("Image_o", binary_image);
@@ -149,14 +149,14 @@ void BrushfireAl::brushfire()
         for(int y = 0; y <= binary_image.rows; y++)
         {
             grey_scale.at<uchar>(Point(x,y)) = pixel_array[counter1];
-            matrix_real[x][y] = pixel_array[counter1];
-            printf("%d     ", matrix_real[x][y]);
             counter1++;
         }
-                       printf("\n");
+
     }
     addNodes(pixel_array);
 }
+
+//Adding the path the a blank map image. The road will be hown in green. Intersection are not added here.
 void BrushfireAl::addNodes(vector<int> pixel_array)
 {
     Vec3b colourPath = colour_img.at<Vec3b>(Point(100,100));
@@ -176,10 +176,10 @@ void BrushfireAl::addNodes(vector<int> pixel_array)
                 colourPath[2] = 0;
                 colour_img.at<Vec3b>(Point(x,y)) = colourPath;
             }
-            else if(pixel_array[counter] > 25)
+            else if(checkGradient(x,y))
             {
-                colourPath[0] = 255;
-                colourPath[1] = 0;
+                colourPath[0] = 0;
+                colourPath[1] = 255;
                 colourPath[2] = 0;
                 colour_img.at<Vec3b>(Point(x,y)) = colourPath;
             }
@@ -194,6 +194,7 @@ void BrushfireAl::addNodes(vector<int> pixel_array)
         }
     }
     nodeVector();
+
     Vec3b colourPoint = colour_img.at<Vec3b>(Point(100,100));
     colourPoint[0] = 0;
     colourPoint[1] = 0;
@@ -207,8 +208,9 @@ void BrushfireAl::addNodes(vector<int> pixel_array)
     colourPoint[2] = 0;
     colour_img.at<Vec3b>(Point(start_y, start_x)) = colourPoint;
 
-
 }
+// Support function test Dijstra's ability to find hardcoddedd nodes. Makes a vector filed with nodes for the map.
+// The addNode function adds them lastly after having generated the path
 void BrushfireAl::nodeVector()
 {
     Point1 add;
@@ -252,6 +254,7 @@ void BrushfireAl::nodeVector()
     add.y = 700;
     important_nodes.push_back(add);
 }
+// Debugging function to find a position in the map to palce a hardcodded node.
 void BrushfireAl::findNodes()
 {
     Vec3b colour = colour_img.at<Vec3b>(Point(100,100));
@@ -263,6 +266,101 @@ void BrushfireAl::findNodes()
         for(int j = 0; j <= 20; j++)
         {
             colour_img.at<Vec3b>(Point(colour_img.cols/2 + i,colour_img.rows / 2 + i)) = colour;
+        }
+    }
+}
+//This functions uses check_neighbours to see how many pixels around it has a higher pixel value
+// than it. If it has less than four neighbours higher or equal
+bool BrushfireAl::checkGradient(int x, int y)
+{
+    vector<Neighbour> neighbours;
+    check_neighbours(neighbours, y, x, 1);
+
+    int equal = 0;
+    int higher = 0;
+    for(int i = 0; i < neighbours.size(); i++)
+    {
+        if(neighbours[i].equal == 1)
+        {
+            equal++;
+        }
+        else if(neighbours[i].higher == 1)
+        {
+            higher++;
+        }
+    }
+    if(equal < 3 && higher == 2)
+    {
+        return true;
+    }
+    else if(higher == 1 && equal > 3)
+    {
+        return true;
+    }
+    else
+        return false;
+}
+
+// checks all 8 neightbours. - the which types refers to whether it looks for white pixels or the pixel value of neighbours.
+void BrushfireAl::check_neighbours(vector<Neighbour> & neighbours, int row, int col, int which_type)
+{
+    vector<Point1> neighbours1;
+    if(which_type == 1)
+    {
+        for(int temp_r = row - 1; temp_r < row + 2; temp_r++)
+        {
+            // checks if the temperary row value doesnt go under 0 or exceeds the image's row dimensions
+            if(temp_r >= 0 && temp_r < grey_scale.rows)
+            {
+                for(int temp_c = col - 1; temp_c < col + 2 ; temp_c++ )
+                {
+                    // checks if the temperary column value doesnt go under 0 or exceeds the image's column dimensions
+                    if(temp_c >= 0 && temp_c < grey_scale.cols)
+                    {
+                        //checks if the current pixel is white, if so, save it.
+                        if(grey_scale.at<uchar>(temp_r,temp_c) < grey_scale.at<uchar>(row,col) && grey_scale.at<uchar>(temp_r,temp_c) != 0 && grey_scale.at<uchar>(temp_r,temp_c) != 1)
+                        {
+                            Neighbour temp;
+                            temp.higher = 1;
+                            temp.equal = 0;
+                            neighbours.push_back(temp);
+                        }
+                        else if(grey_scale.at<uchar>(temp_r,temp_c) == grey_scale.at<uchar>(row,col) && grey_scale.at<uchar>(temp_r,temp_c) != 0 && grey_scale.at<uchar>(temp_r,temp_c) != 1)
+                        {
+                            Neighbour temp;
+                            temp.higher = 0;
+                            temp.equal = 1;
+                            neighbours.push_back(temp);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+   else
+    {
+        for(int temp_r = row - 1; temp_r < row + 2; temp_r++)
+        {
+            // checks if the temperary row value doesnt go under 0 or exceeds the image's row dimensions
+            if(temp_r >= 0 && temp_r < grey_scale.rows)
+            {
+                for(int temp_c = col - 1; temp_c < col + 2 ; temp_c++ )
+                {
+                    // checks if the temperary column value doesnt go under 0 or exceeds the image's column dimensions
+                    if(temp_c >= 0 && temp_c < grey_scale.cols)
+                    {
+                        //checks if the current pixel is white, if so, save it.
+                        if(grey_scale.at<uchar>(temp_r,temp_c) == uchar(255))
+                        {
+                            Point1 temp;
+                            temp.x = temp_c;
+                            temp.y = temp_r;
+                            neighbours1.push_back(temp);
+                        }
+                    }
+                }
+            }
         }
     }
 }

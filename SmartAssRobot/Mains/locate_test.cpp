@@ -91,7 +91,6 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
         float angle = angle_min + i * angle_increment;
         float range = std::min(float(msg->scan().ranges(i)), range_max);
         ranges.push_back(range);
-        //    double intensity = msg->scan().intensities(i);
         cv::Point2f startpt(200.5f + range_min * px_per_m * std::cos(angle),
                             200.5f - range_min * px_per_m * std::sin(angle));
         cv::Point2f endpt(200.5f + range * px_per_m * std::cos(angle),
@@ -105,8 +104,8 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
               cv::Point(10, 20), cv::FONT_HERSHEY_PLAIN, 1.0,
               cv::Scalar(255, 0, 0));
 
-    mutex_l.lock();
     s.updateLidar(nranges, angle_min, angle_max, angle_increment, range_max, ranges);
+    mutex_l.lock();
     cv::imshow("lidar", im);
     mutex_l.unlock();
 }
@@ -132,9 +131,6 @@ int main(int _argc, char **_argv)
 
     gazebo::transport::SubscriberPtr lidarSubscriber =
       node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", lidarCallback);
-
-//    gazebo::transport::SubscriberPtr lidarSubscriber2 =
-//          node->Subscribe("~/pioneer2dx/hokuyo/link/laser/scan", &Laserscanner::update);
 
     // Publish to the robot vel_cmd topic
     gazebo::transport::PublisherPtr movementPublisher =

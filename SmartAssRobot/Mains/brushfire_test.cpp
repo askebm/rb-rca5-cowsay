@@ -4,7 +4,7 @@
 #include <opencv2/opencv.hpp>
 #include <iostream>
 
-#include "../Classes/Lidar/brushfire.h"
+#include "../Classes/Lidar/brushfireal.h"
 #include "../Classes/Lidar/graph.h"
 static boost::mutex mutex_l;
 static boost::mutex mutex_k;
@@ -59,7 +59,6 @@ void lidarCallback(ConstLaserScanStampedPtr &msg)
     double angle_max = float(msg->scan().angle_max());
     float angle_increment = float(msg->scan().angle_step());
 
-    cout << angle_min << " " << angle_max << endl;
     float range_min = float(msg->scan().range_min());
     float range_max = float(msg->scan().range_max());
 
@@ -144,22 +143,7 @@ const int key_esc = 27;
 float speed = 0.0;
 float dir = 0.0;
 
-Mat image = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png"); // bigworld
-//Mat image =imread("/home/annie//git_repo/rb-rca5-cowsay/models/smallworld/meshes/floor_plan.png"); // smallworld
-mutex_l.lock();
-Mat new1 = image.clone();
-Mat new3 = image.clone();
-mutex_l.unlock();
-
-int max = generate_brushfire(new1,new1);
-roadmap g(new1,max);
-g.draw_roadmap(new3);
-
-mutex_l.lock();
-resize(new3, new3, Size(), 10, 10, INTER_CUBIC); // upscale 10x
-cv::namedWindow("Image");
-cv::imshow("Image", new3);
-mutex_l.unlock();
+BrushfireAl a;
 
 // Loop
     while (true)

@@ -1,6 +1,6 @@
 #include "brushfire.h"
 
-// checks all 9 neightbours.
+// checks all 8 neightbours.
 void check_neighbours(Mat & image,  vector<pixel> & neighbours, int row, int col)
 { 
     for(int temp_r = row - 1; temp_r < row + 2; temp_r++)
@@ -47,7 +47,6 @@ int generate_brushfire(Mat & source, Mat & return_image)
     return_image = source.clone();
     while(neighbours.size() != 0 )
     {
-
         std::vector<pixel> newneighbours;
 
         for(pixel pixel_v : neighbours )
