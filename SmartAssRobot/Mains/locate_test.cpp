@@ -30,15 +30,6 @@ void poseCallback(ConstPosesStampedPtr &_msg)
             mutex_l.lock();
             s.updatePose(robot_x, robot_y, robot_beta);
             mutex_l.unlock();
-//          std::cout << std::setprecision(2) << std::fixed << std::setw(6)
-//                    << _msg->pose(i).position().x() << std::setw(6)
-//                    << _msg->pose(i).position().y() << std::setw(6)
-//                    << _msg->pose(i).position().z() << std::setw(6)
-//                    << _msg->pose(i).orientation().w() << std::setw(6)
-//                    << _msg->pose(i).orientation().x() << std::setw(6)
-//                    << _msg->pose(i).orientation().y() << std::setw(6)
-//                    << _msg->pose(i).orientation().z() << std::endl;
-            //cout << "I was here" << endl;
        }
     }
 }

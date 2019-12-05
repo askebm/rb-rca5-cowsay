@@ -28,13 +28,11 @@ void particle::updateState(double x_n, double y_n, double beta_n, double time)
     beta = beta_n;
 
 }
-
 Localization::Localization(int sample_size, Laserscanner ls)
 {
     N = sample_size;
     init(ls);
 }
-
 Localization::~Localization(){}
 
 void Localization::init(Laserscanner ls)
@@ -67,7 +65,7 @@ void Localization::init(Laserscanner ls)
         else
             samples[i] = {};
     }
-    cout << "I made to through init" << endl;
+    //cout << "I made to through init" << endl;
     updatePos(ls);
 }
 void Localization::prediction(Laserscanner sh)
@@ -76,7 +74,7 @@ void Localization::prediction(Laserscanner sh)
     boost::random::normal_distribution<double> error_angle(0, 0.2);
     //updated = sh.hasUpdated(updated);
 
-    cout << "I made it to prediction" << endl;
+    //cout << "I made it to prediction" << endl;
     if(updated)
     {
         if(first_flag)
@@ -139,10 +137,11 @@ void Localization::prediction(Laserscanner sh)
 }
 void Localization::updatePos(Laserscanner lsa)
 {
-    cout << "I made it to updatePOs" << endl;
     if(updated)
     {
         double sigma = 2.0;
+        r_x = lsa.robot_x;
+        r_y = lsa.robot_y;
         //get the rays for robot;
         vector<rays> robot_rays;
         rays ray;
@@ -153,6 +152,7 @@ void Localization::updatePos(Laserscanner lsa)
             robot_rays.push_back(ray);
 
         }
+
         vector<rays> temp;
         //get rays for samples
         for(int i = 0; i < N; i++)
@@ -187,7 +187,7 @@ void Localization::updatePos(Laserscanner lsa)
         {
             samples[i].weight = temp_weight[i]/norm_const;
             sum= sum + samples[i].weight;
-           // cout << samples[i].weight << endl;
+          //  cout << samples[i].weight << endl;
 
         }
         //cout << sum << endl;
@@ -234,7 +234,7 @@ void Localization::updateMap()
     for(int i  = 0; i < N; i++)
     {
         int x = (samples[i].x + 42)/0.07;
-        int y = (samples[i].y + 20)/0.07;
+        int y = ((-1)* samples[i].y + 20)/0.07;
 
         circle(new_draw, Point((int)x,(int)y), 3, Vec3b(255,0,0), 1);
     }
@@ -243,9 +243,11 @@ void Localization::updateMap()
 
     circle(new_draw, Point((int)x,(int)y), 3, Vec3b(0,0,255), 1);
 
+
     mutex_k.lock();
     cv::namedWindow("new_draw");
     cv::imshow("new_draw", new_draw);
+    cv::imwrite("/home/annie/newMap.png", new_draw );
     mutex_k.unlock();
 
 }

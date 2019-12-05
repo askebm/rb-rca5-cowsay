@@ -7,6 +7,7 @@ Laserscanner::Laserscanner()
 
 void Laserscanner::updateLidar(int nr, float angle_mi, double angle_ma, float angle_i, float range_m, vector<float> ranges)
 {
+
     range.clear();
     angle.clear();
     angle_min = angle_mi;
@@ -29,10 +30,17 @@ void Laserscanner::updatePose(vector<double> x, vector<double> y, vector<double>
 }
 void Laserscanner::updateSpeed(double speed, double dir)
 {
-
+    bool flag = false;
     vel = speed;
     angle_vel = dir;
-    bool flag = true;
+    if(update_pos_t && update_lidar_t)
+    {
+        flag = true;
+    }
+    else
+    {
+        flag = false;
+    }
     hasUpdated(flag);
 }
 bool Laserscanner::hasUpdated(bool flag)
@@ -199,6 +207,6 @@ double Laserscanner::calDistance(vector<double> x, vector<double> y)
             break;
     }
 
-    distance = sqrt(pow(abs(x[0]-x[tmp]),2) + pow(abs(y[0]-y[tmp]),2))*0.07;
+    distance = sqrt(pow(abs(x[0]-x[tmp]),2) + pow(abs(y[0]-y[tmp]),2));
     return distance;
 }

@@ -57,7 +57,8 @@ private:
     int nranges;
     int nintensities;
     Mat map = imread("/home/annie/git_repo/rb-rca5-cowsay/models/bigworld/meshes/floor_plan.png", CV_LOAD_IMAGE_GRAYSCALE);
-
+    bool update_lidar_t;
+    bool update_pos_t;
 };
 
 #endif // LASERSCANNER_H
