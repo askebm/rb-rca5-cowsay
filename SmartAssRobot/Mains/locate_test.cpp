@@ -147,15 +147,6 @@ int main(int _argc, char **_argv)
 
     Localization l(200, s);
 
-
-
-//    vector<rays> ray;
-//    ray = s.rayCasting(40,60,2,0);
-//    for(int i = 0; i < ray.size(); i++)
-//    {
-//        cout << "this is distance " << ray[i].distance << " and this is angle " << ray[i].dir << endl;
-//    }
-
   // Loop
       while (true)
       {
@@ -182,8 +173,8 @@ int main(int _argc, char **_argv)
             //      speed *= 0.1;
             //      dir *= 0.1;
           }
-          s.updateSpeed(speed, dir);
-          l.prediction(s);
+           s.updateSpeed(speed, dir);
+           l.prediction(s);
 
           //Generate a pose
           ignition::math::Pose3d pose(double(speed), 0, 0, 0, 0, double(dir));

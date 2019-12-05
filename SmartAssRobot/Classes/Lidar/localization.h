@@ -50,7 +50,7 @@ private:
     double current_time;
     bool first_flag = true;
     const double pi = boost::math::constants::pi<double>();
-    bool updated = true;
+    bool updated;
     bool checkCoordinates(double x, double y);
     Mat map = imread("/home/annie/git_repo/rb-rca5-cowsay/floor_plan.png");
     double r_x;

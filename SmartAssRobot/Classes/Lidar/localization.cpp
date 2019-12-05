@@ -37,7 +37,7 @@ Localization::~Localization(){}
 
 void Localization::init(Laserscanner ls)
 {
-    uniform_real_distribution<double> vel_variance(-2.5, 2.5);
+    uniform_real_distribution<double> vel_variance(-pi/2, pi/2);
     uniform_real_distribution<double> angle_variance(-2.89, 2.89);
     first_flag = true;
 
@@ -65,16 +65,14 @@ void Localization::init(Laserscanner ls)
         else
             samples[i] = {};
     }
-    //cout << "I made to through init" << endl;
     updatePos(ls);
 }
 void Localization::prediction(Laserscanner sh)
 {
     boost::random::normal_distribution<double> error_vel(0, 0.2);
     boost::random::normal_distribution<double> error_angle(0, 0.2);
-    //updated = sh.hasUpdated(updated);
+    updated = sh.hasUpdated(updated);
 
-    //cout << "I made it to prediction" << endl;
     if(updated)
     {
         if(first_flag)
@@ -142,6 +140,7 @@ void Localization::updatePos(Laserscanner lsa)
         double sigma = 2.0;
         r_x = lsa.robot_x;
         r_y = lsa.robot_y;
+
         //get the rays for robot;
         vector<rays> robot_rays;
         rays ray;
@@ -150,7 +149,6 @@ void Localization::updatePos(Laserscanner lsa)
             ray.distance = lsa.range[i];
             ray.dir = lsa.angle[i];
             robot_rays.push_back(ray);
-
         }
 
         vector<rays> temp;
@@ -191,6 +189,7 @@ void Localization::updatePos(Laserscanner lsa)
 
         }
         //cout << sum << endl;
+        updateMap();
         resampling();
     }
     else
@@ -218,25 +217,18 @@ void Localization::resampling()
     }
     samples = new_m;
     new_m.clear();
-
-    updateMap();
 }
 
 void Localization::updateMap()
 {
     Mat new_draw = map.clone();
 
-    Vec3b colour = new_draw.at<Vec3b>(100,100);
-    colour[0] = 255;
-    colour[1] = 0;
-    colour[2] = 0;
-
     for(int i  = 0; i < N; i++)
     {
         int x = (samples[i].x + 42)/0.07;
-        int y = ((-1)* samples[i].y + 20)/0.07;
+        int y = ((-1)* samples[i].y + 28)/0.07;
 
-        circle(new_draw, Point((int)x,(int)y), 3, Vec3b(255,0,0), 1);
+        circle(new_draw, Point((int)x,(int)y), 1, Vec3b(255,0,0), 1);
     }
     double x = (r_x + 42)/0.07;
     double y = ((-1) * r_y + 28)/0.07;
