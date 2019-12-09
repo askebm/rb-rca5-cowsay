@@ -4,6 +4,7 @@ project(SmartAssRobot)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+
 find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS}) # Not needed for CMake >= 2.8.11
 

@@ -1,0 +1,76 @@
+%% Creator: Inkscape inkscape 0.92.4, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'CircleTestSideView100000.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{300bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.75)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{CircleTestSideView100000.pdf}}%
+    \put(0.10844275,0.22572){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}0\end{tabular}}}}%
+    \put(0.91155725,0.22572){\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}1\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{CircleTestSideView100000.pdf}}%
+    \put(0.10844275,0.28613825){\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}5\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{CircleTestSideView100000.pdf}}%
+    \put(0.2769945,0.04634375){\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}$\alpha$\end{tabular}}}}%
+    \put(0.7430055,0.04634375){\makebox(0,0)[lt]{\lineheight{1.25}\smash{\begin{tabular}[t]{l}$\epsilon$\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{CircleTestSideView100000.pdf}}%
+    \put(0.72155725,0.1360215){\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}0.5\end{tabular}}}}%
+    \put(0.29844275,0.1360215){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}0.5\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{CircleTestSideView100000.pdf}}%
+    \put(0.10844275,0.40145925){\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}10\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{CircleTestSideView100000.pdf}}%
+    \put(0.53155725,0.04632275){\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}0\end{tabular}}}}%
+    \put(0.48844275,0.046323){\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}1\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{CircleTestSideView100000.pdf}}%
+    \put(0.10844275,0.51678){\makebox(0,0)[rt]{\lineheight{1.25}\smash{\begin{tabular}[t]{r}15\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{CircleTestSideView100000.pdf}}%
+  \end{picture}%
+\endgroup%

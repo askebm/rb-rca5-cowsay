@@ -64,6 +64,8 @@ QAgent::Reward QAgent::episode(int time,bool print) {
 	auto s = currentState;
 	//while (!isTerminalState(s)) {
 	auto delta = std::numeric_limits<Reward>::min();
+
+
 	if (print) {
 		std::cout << "Start: " << s.second << std::endl;
 	}
@@ -89,7 +91,7 @@ QAgent::Reward QAgent::episode(int time,bool print) {
 
 		policy[sa] += alpha * (r + lambda * Qmax(sNew,a) - policy[sa]);
 
-		delta = std::max(delta,std::abs( oldQ - policy[sa] ));
+		//delta = std::max(delta,std::abs( oldQ - policy[sa] ));
 		s = sNew;
 		if (print) {
 			std::cout << "At: " << s.second << std::endl;
@@ -113,11 +115,11 @@ QAgent::Action QAgent::getNextAction(const State& s) {
 }
 
 QAgent::Reward QAgent::getReward(const State& s,const Action& a){
-	StateAction sa{s,a};
-	auto cost = graph.getCostByIDs(s.second,a);
+	//StateAction sa{s,a};
+	//auto cost = graph.getCostByIDs(s.second,a);
 	Reward reward;
 	if (s.first[a]) {
-		reward = Rewards.unVisited;
+		reward = Rewards.isVisited;
 	} else {
 		reward = graph.getNumberOfMarblesByID(a);
 	}
